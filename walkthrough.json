@@ -1,13 +1,21 @@
 {
-  "title": "Sample Apartment",
+  "title": "Sudhakar Stall",
   "glb": "scene/scene.glb",
   "startCamera": "Main Camera",
   "eyeHeight": 1.65,
   "bounds": {
-    "min": [-6, -5],
-    "max": [6, 5]
+    "min": [
+      -5.2,
+      -9.0
+    ],
+    "max": [
+      6.2,
+      2.0
+    ]
   },
-  "colliders": ["Wall_*"],
+  "colliders": [
+    "Wall_*"
+  ],
   "lighting": {
     "preset": "daylight",
     "exposure": 1.1,
@@ -21,7 +29,11 @@
       "tag": "Garden",
       "price": "₹1,200",
       "description": "A durable garden pipe designed for everyday watering and outdoor use.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is a Garden Pipe, suitable for everyday watering and outdoor use.",
       "sku": "GARDEN-PIPE",
       "maker": "Garden Essentials"
@@ -32,7 +44,11 @@
       "tag": "Garden",
       "price": "₹180",
       "description": "A sturdy clamp designed to hold and secure connected components.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is a Clamp, designed to hold and secure components in place.",
       "sku": "CLAMP",
       "maker": "Garden Essentials"
@@ -43,7 +59,11 @@
       "tag": "Garden",
       "price": "₹150",
       "description": "A garden pipe connector designed for joining compatible garden pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is Garden Pipe Connector 01, designed for joining garden pipes.",
       "sku": "GARDEN-CONNECTOR-01",
       "maker": "Garden Essentials"
@@ -54,7 +74,11 @@
       "tag": "Garden",
       "price": "₹160",
       "description": "A garden pipe connector designed for creating secure pipe connections.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is Garden Pipe Connector 02, designed for secure pipe connections.",
       "sku": "GARDEN-CONNECTOR-02",
       "maker": "Garden Essentials"
@@ -65,7 +89,11 @@
       "tag": "Garden",
       "price": "₹175",
       "description": "A garden pipe connector designed to connect compatible garden piping.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is Garden Pipe Connector 03, designed to connect garden piping.",
       "sku": "GARDEN-CONNECTOR-03",
       "maker": "Garden Essentials"
@@ -76,7 +104,11 @@
       "tag": "Garden",
       "price": "₹190",
       "description": "A garden pipe connector designed for simple and reliable pipe connections.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is Garden Pipe Connector 04, designed for reliable pipe connections.",
       "sku": "GARDEN-CONNECTOR-04",
       "maker": "Garden Essentials"
@@ -87,7 +119,11 @@
       "tag": "Plumbing",
       "price": "₹350",
       "description": "A PVC ball valve designed to control the flow of water through a pipe.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is a PVC Ball Valve, designed for controlling water flow.",
       "sku": "PVC-BALLVALVE",
       "maker": "PVC Solutions"
@@ -98,7 +134,11 @@
       "tag": "Plumbing",
       "price": "₹120",
       "description": "A PVC connector designed for joining compatible PVC pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 01, designed for joining PVC pipes.",
       "sku": "PVC-CONNECTOR-01",
       "maker": "PVC Solutions"
@@ -109,7 +149,11 @@
       "tag": "Plumbing",
       "price": "₹130",
       "description": "A PVC connector designed to create a secure connection between compatible pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 02, designed for secure pipe connections.",
       "sku": "PVC-CONNECTOR-02",
       "maker": "PVC Solutions"
@@ -120,7 +164,11 @@
       "tag": "Plumbing",
       "price": "₹140",
       "description": "A PVC connector designed for connecting compatible plumbing pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 03, designed for connecting plumbing pipes.",
       "sku": "PVC-CONNECTOR-03",
       "maker": "PVC Solutions"
@@ -131,7 +179,11 @@
       "tag": "Plumbing",
       "price": "₹150",
       "description": "A PVC connector designed for reliable connections between compatible pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 04, designed for reliable pipe connections.",
       "sku": "PVC-CONNECTOR-04",
       "maker": "PVC Solutions"
@@ -142,7 +194,11 @@
       "tag": "Plumbing",
       "price": "₹160",
       "description": "A PVC connector designed for connecting and extending compatible pipe sections.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 05, designed for connecting compatible pipe sections.",
       "sku": "PVC-CONNECTOR-05",
       "maker": "PVC Solutions"
@@ -153,7 +209,11 @@
       "tag": "Plumbing",
       "price": "₹170",
       "description": "A PVC connector designed to provide a simple connection between compatible pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 06, designed for simple pipe connections.",
       "sku": "PVC-CONNECTOR-06",
       "maker": "PVC Solutions"
@@ -164,7 +224,11 @@
       "tag": "Plumbing",
       "price": "₹180",
       "description": "A PVC connector designed for connecting compatible plumbing pipes.",
-      "images": ["img/sofa-1.jpg", "img/sofa-2.jpg", "img/sofa-3.jpg"],
+      "images": [
+        "img/sofa-1.jpg",
+        "img/sofa-2.jpg",
+        "img/sofa-3.jpg"
+      ],
       "narration": "This is PVC Connector 07, designed for connecting plumbing pipes.",
       "sku": "PVC-CONNECTOR-07",
       "maker": "PVC Solutions"

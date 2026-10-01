@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>InteriorSpace 3D Pro &bull; Architectural Walkthrough</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23171717'/%3E%3Cpath d='M16 6l9 5v10l-9 5-9-5V11zM7 11l9 5 9-5M16 16v10' fill='none' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Three.js r128 & Addons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      touch-action: none;
+      overflow: hidden;
+      background-color: #eeece6;
+      color: #171717;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Restrained Architectural Surface & Button Styles */
+    .glass-panel {
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+    
+    .glass-button {
+      background: #ffffff;
+      color: #171717;
+      border: 1px solid #e5e5e5;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+    .glass-button:hover {
+      background: #f5f5f5;
+      border-color: #d4d4d4;
+    }
+    .glass-button:active {
+      background: #e5e5e5;
+      transform: scale(0.98);
+    }
+
+    /* Crosshair / Reticle:
+       In first-person desktop exploration with PointerLockControls, the reticle indicates
+       the physical center aiming vector for view orientation and center-screen raycasting.
+       On touch devices, users tap objects directly with a finger at arbitrary coordinates,
+       making a fixed center crosshair redundant and misleading.
+    */
+    #reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #171717;
+      box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85);
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* Touch Controls Safe Area Layout */
+    #joystick-zone {
+      bottom: max(1.25rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
+      left: max(1.25rem, calc(env(safe-area-inset-left, 0px) + 0.75rem));
+      touch-action: none;
+    }
+
+    /* Product callout (floating card anchored to the product, like the index.html hotspots) */
+    #reticle { transition: transform 0.12s ease; }
+    #product-callout { width: 20rem; max-height: calc(100vh - 6rem); overflow-y: auto; }
+    #product-callout.callout-docked { left: auto !important; right: 1rem; top: 5rem !important; }
+    @media (max-width: 639px) {
+      #product-callout, #product-callout.callout-docked {
+        left: 0 !important; right: 0; top: auto !important; bottom: 0;
+        width: 100%; max-height: 78vh;
+        border-radius: 1.25rem 1.25rem 0 0; border-bottom: none;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+    }
+
+    /* Custom Clean Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #fafafa; }
+    ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+
+    /* ===== Theme layer: every UI colour comes from these variables (set in JS from THEMES) ===== */
+    :root{--bg:#eeece6;--surface:#fff;--surface2:#f5f5f5;--text:#171717;--muted:#6b6b6b;--border:#e5e5e5;--ink:#171717;--on-ink:#fff;--sel:#ff4d2e;--ret:#171717;--ret-size:6px}
+    html body{background:var(--bg)!important;color:var(--text)!important}
+    html body .glass-panel{background:var(--surface);border-color:var(--border)}
+    html body .glass-button{background:var(--surface);color:var(--text);border-color:var(--border)}
+    html body .glass-button:hover{background:var(--surface2)}
+    .bg-white,.bg-white\/90,.bg-white\/95{background-color:var(--surface)!important}
+    .bg-white\/70{background-color:color-mix(in srgb,var(--surface) 75%,transparent)!important}
+    .bg-neutral-50,.bg-neutral-100,.bg-neutral-200,.hover\:bg-neutral-100:hover{background-color:var(--surface2)!important}
+    .bg-neutral-900,.hover\:bg-neutral-800:hover,.active\:bg-black:active{background-color:var(--ink)!important}
+    .hover\:bg-neutral-800:hover{opacity:.88}
+    .text-neutral-900,.text-neutral-800,.text-neutral-700,.hover\:text-neutral-900:hover{color:var(--text)!important}
+    .text-neutral-600,.text-neutral-500,.text-neutral-400{color:var(--muted)!important}
+    .text-white{color:var(--on-ink)!important}
+    .border-neutral-200,.border-neutral-300,.border-neutral-400\/40{border-color:var(--border)!important}
+    .sel-chip{color:color-mix(in srgb,var(--sel) 65%,var(--text));background:color-mix(in srgb,var(--sel) 12%,transparent);border:1px solid color-mix(in srgb,var(--sel) 35%,transparent)}
+    .sel-bg{background:var(--sel)}
+    .sel-dot{background:var(--sel);box-shadow:0 0 0 4px color-mix(in srgb,var(--surface) 80%,transparent)}
+    #reticle{width:var(--ret-size)!important;height:var(--ret-size)!important;background:var(--ret)!important;box-shadow:0 0 0 1.5px rgba(255,255,255,.85),0 0 0 3px rgba(0,0,0,.2)!important}
+    html[data-ret=ring] #reticle{background:transparent!important;border:2px solid var(--ret);width:calc(var(--ret-size)*2.2)!important;height:calc(var(--ret-size)*2.2)!important}
+    .spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--ink);animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .st-h{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:1.1rem 0 .3rem}
+    .st-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.5rem 0;font-size:12px;border-bottom:1px solid var(--border)}
+    .st-ctl{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;justify-content:flex-end}
+    .st-sw{width:22px;height:22px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--border);cursor:pointer}
+    .st-sw.on{box-shadow:0 0 0 2px var(--ink)}
+    .st-seg{padding:.2rem .55rem;border-radius:.5rem;border:1px solid var(--border);font-size:11px;background:var(--surface);color:var(--text);cursor:pointer}
+    .st-seg.on{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+    .st-ctl input[type=range]{width:7rem;accent-color:var(--ink)}
+    .st-ctl input[type=color]{width:26px;height:22px;padding:0;border:none;background:none;cursor:pointer}
+  </style>
+</head>
+<body class="h-full w-full relative">
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+  <!-- Center Aim Reticle (Desktop Only) -->
+  <div id="reticle" class="hidden"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="absolute top-0 left-0 right-0 z-20 p-2.5 sm:p-4 pointer-events-none flex justify-between items-center max-w-7xl mx-auto w-full gap-2">
+    <!-- Branding Info -->
+    <div class="glass-panel px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl flex items-center gap-2.5 pointer-events-auto">
+      <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-neutral-900 flex items-center justify-center text-white text-xs sm:text-sm">
+        <i class="fa-solid fa-cube"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5">
+          <h1 class="font-semibold text-xs sm:text-sm tracking-tight text-neutral-900 leading-none">InteriorSpace</h1>
+          <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 font-semibold border border-neutral-200">3D</span>
+        </div>
+        <p id="model-status-text" class="text-[10px] sm:text-xs text-neutral-500 truncate max-w-[110px] sm:max-w-[220px] mt-0.5">Architectural Suite &bull; Walkthrough</p>
+      </div>
+    </div>
+
+    <!-- Right Controls Action Group -->
+    <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
+      <!-- Narration Audio Toggle -->
+      <button id="narration-btn" class="glass-button p-2 sm:p-2.5 rounded-xl text-neutral-600 hover:text-neutral-900" title="Toggle Audio Narration" aria-label="Toggle Audio Narration">
+        <i id="narration-icon" class="fa-solid fa-volume-xmark w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center text-neutral-400"></i>
+      </button>
+
+      <!-- Custom GLB Upload -->
+      <label id="load-label" class="glass-button px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium text-neutral-800 cursor-pointer flex items-center gap-1.5 hover:text-neutral-900" title="Import custom GLB file" aria-label="Load GLB File">
+        <i class="fa-solid fa-cloud-arrow-up text-neutral-700"></i>
+        <span class="hidden md:inline">Load GLB + JSON</span>
+        <input type="file" id="glb-file-input" accept=".glb,.json" multiple class="hidden">
+      </label>
+
+      <!-- Reset Walk Camera View -->
+      <button id="reset-view-btn" class="glass-button p-2 sm:p-2.5 rounded-xl text-neutral-700 hover:text-neutral-900" title="Reset Walk Camera" aria-label="Reset Camera Viewpoint">
+        <i class="fa-solid fa-house w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center"></i>
+      </button>
+
+      <button id="settings-btn" class="glass-button p-2 sm:p-2.5 rounded-xl" title="Settings" aria-label="Settings">
+        <i class="fa-solid fa-sliders w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center"></i>
+      </button>
+
+      <!-- Controls & Guide Modal Toggle -->
+      <button id="help-btn" class="glass-button p-2 sm:p-2.5 rounded-xl text-neutral-700 hover:text-neutral-900" title="Controls Guide" aria-label="Controls and Help">
+        <i class="fa-solid fa-circle-question w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center"></i>
+      </button>
+
+      <!-- Exit Experience Button -->
+      <button id="exit-walkthrough-btn" class="hidden glass-button px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-medium text-neutral-800 hover:text-neutral-900 items-center gap-1.5" title="Exit Walkthrough" aria-label="Exit Walkthrough">
+        <i class="fa-solid fa-right-from-bracket text-neutral-600"></i>
+        <span class="hidden sm:inline">Exit</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Floating Controls Toast -->
+  <div id="walkthrough-hint" class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 glass-panel px-4 py-1.5 rounded-full text-xs text-neutral-700 pointer-events-none opacity-0 transition-opacity duration-300 flex items-center gap-2">
+    <i class="fa-solid fa-compass text-neutral-500"></i>
+    <span id="hint-text">WASD to walk &bull; Drag to look &bull; Click to inspect</span>
+  </div>
+
+  <!-- Welcome / Level Start Overlay -->
+  <div id="welcome-overlay" class="fixed inset-0 z-40 bg-neutral-950/40 flex items-center justify-center p-3 sm:p-6 overflow-y-auto transition-opacity duration-200">
+    <div class="bg-white text-neutral-900 border border-neutral-200 rounded-2xl p-5 sm:p-7 max-w-md w-full my-auto shadow-xl relative max-h-[calc(100dvh-1.5rem)] flex flex-col overflow-y-auto">
+      <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-800 text-sm mx-auto mb-3">
+        <i class="fa-solid fa-cube"></i>
+      </div>
+      
+      <h2 class="text-lg sm:text-xl font-semibold tracking-tight text-neutral-900 text-center mb-1">Architectural Walkthrough</h2>
+      <p class="text-xs sm:text-sm text-neutral-500 text-center mb-4 leading-relaxed">
+        Explore the spatial layout in real-time. Inspect structural components, review dimensions, and study fixtures in 360&deg;.
+      </p>
+
+      <!-- Desktop Instructions Panel -->
+      <div id="desktop-guide" class="space-y-2 text-left text-xs text-neutral-700 bg-neutral-50 p-3 sm:p-4 rounded-xl border border-neutral-200 mb-5">
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-keyboard text-neutral-400"></i> Walk Navigation</span>
+          <span class="font-mono bg-white px-2 py-0.5 rounded border border-neutral-200 text-neutral-800 font-medium">W A S D / Arrows</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-eye text-neutral-400"></i> Look Around</span>
+          <span class="font-mono bg-white px-2 py-0.5 rounded border border-neutral-200 text-neutral-800 font-medium">Left Drag / Click</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-hand-pointer text-neutral-400"></i> Inspect Product</span>
+          <span class="font-mono bg-white px-2 py-0.5 rounded border border-neutral-200 text-neutral-800 font-medium">Click Object</span>
+        </div>
+      </div>
+
+      <!-- Touch Devices Instructions Panel -->
+      <div id="touch-guide" class="hidden space-y-2 text-left text-xs text-neutral-700 bg-neutral-50 p-3 sm:p-4 rounded-xl border border-neutral-200 mb-5">
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-gamepad text-neutral-400"></i> Walk Navigation</span>
+          <span class="font-medium text-neutral-800">Virtual Joystick</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-hand text-neutral-400"></i> Look Around</span>
+          <span class="font-medium text-neutral-800">Swipe Screen Right</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-hand-pointer text-neutral-400"></i> Inspect Product</span>
+          <span class="font-medium text-neutral-800">Tap Object</span>
+        </div>
+      </div>
+
+      <button id="start-walkthrough-btn" class="w-full py-2.5 sm:py-3 px-4 bg-neutral-900 hover:bg-neutral-800 active:bg-black text-white font-medium text-xs sm:text-sm rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm" aria-label="Start Walkthrough Exploration">
+        <span>Enter Walkthrough</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+      <button id="welcome-settings-btn" class="mt-2 text-xs text-neutral-500 hover:text-neutral-900 py-1"><i class="fa-solid fa-sliders mr-1"></i>Settings &amp; themes</button>
+    </div>
+  </div>
+
+  <!-- Hover name tag (shown when the crosshair is on a product) -->
+  <div id="hover-tag" class="hidden absolute z-20 left-1/2 top-1/2 mt-5 -translate-x-1/2 bg-neutral-900 text-white text-xs font-medium px-2.5 py-1 rounded-md pointer-events-none whitespace-nowrap"></div>
+
+  <!-- Product Callout: dot + stem + card, anchored to the selected product -->
+  <div id="callout-root" class="hidden fixed inset-0 z-30 pointer-events-none">
+    <svg id="callout-svg" class="absolute inset-0 w-full h-full"><line id="callout-line" stroke="var(--sel)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <div id="callout-dot" class="absolute w-2.5 h-2.5 -ml-[5px] -mt-[5px] rounded-full sel-dot"></div>
+    <aside id="product-callout" class="absolute glass-panel rounded-2xl pointer-events-auto">
+      <div id="slideshow" class="relative h-44 bg-neutral-200 overflow-hidden hidden">
+        <div id="slides" class="flex h-full transition-transform duration-300 ease-out"></div>
+        <button id="slide-prev" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-neutral-800 text-xs shadow" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="slide-next" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-neutral-800 text-xs shadow" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
+        <div id="slide-dots" class="absolute bottom-2 inset-x-0 flex justify-center items-center gap-1.5"></div>
+      </div>
+      <div class="p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="inline-flex items-center gap-1.5 min-w-0 text-[10px] font-semibold uppercase tracking-wider sel-chip rounded-md px-2 py-1">
+            <span class="w-1.5 h-1.5 rounded-full sel-bg shrink-0"></span><span id="obj-category" class="truncate">Category</span>
+          </span>
+          <span id="obj-price" class="hidden shrink-0 bg-neutral-900 text-white text-xs font-bold px-2.5 py-1 rounded-lg"></span>
+        </div>
+        <div class="flex items-start justify-between gap-2">
+          <h3 id="obj-name" class="font-semibold text-neutral-900 text-base leading-tight">Product</h3>
+          <button id="close-inspector-btn" class="w-7 h-7 -mt-1 rounded-lg hover:bg-neutral-100 flex items-center justify-center text-neutral-500 hover:text-neutral-900 shrink-0" aria-label="Close"><i class="fa-solid fa-xmark text-sm"></i></button>
+        </div>
+        <p id="obj-description" class="text-xs text-neutral-600 leading-relaxed"></p>
+        <div id="narration-status-card" class="hidden bg-neutral-100 border border-neutral-200 rounded-xl p-2.5 flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-md bg-neutral-200 flex items-center justify-center text-neutral-700 text-xs"><i class="fa-solid fa-volume-high"></i></div>
+          <div class="flex-1 min-w-0">
+            <span class="text-[9px] text-neutral-500 uppercase font-semibold block">Audio Description</span>
+            <p id="narration-text-display" class="text-xs text-neutral-800 italic truncate"></p>
+          </div>
+        </div>
+        <div class="flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-[10px] text-neutral-500 pt-2 border-t border-neutral-200">
+          <span id="obj-sku" class="font-mono"></span><span id="obj-maker"></span><span id="obj-dims" class="font-mono"></span>
+        </div>
+        <div class="flex gap-2 pt-0.5">
+          <button id="focus-obj-btn" class="flex-1 py-2 px-3 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs rounded-lg flex items-center justify-center gap-1.5"><i class="fa-solid fa-crosshairs text-xs"></i> Focus Camera</button>
+          <button id="deselect-obj-btn" class="py-2 px-4 bg-white hover:bg-neutral-100 text-neutral-800 font-medium text-xs rounded-lg border border-neutral-300">Return</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile Touch Controls -->
+  <div id="touch-controls" class="absolute inset-0 z-10 pointer-events-none hidden">
+    <!-- Virtual Joystick (Bottom Left) -->
+    <div id="joystick-zone" class="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full border border-neutral-400/40 bg-white/70 backdrop-blur-sm pointer-events-auto flex items-center justify-center touch-none shadow-md">
+      <div id="joystick-handle" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-neutral-900 shadow-md border border-neutral-400/40 transform transition-transform duration-75"></div>
+    </div>
+
+    <!-- Touch Look Panning Area (Right 55% of Screen) -->
+    <div id="touch-look-zone" class="absolute top-0 right-0 w-[55%] h-full pointer-events-auto touch-none"></div>
+  </div>
+
+  <!-- Loading & Progress Screen -->
+  <div id="loading-overlay" class="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 transition-opacity duration-200">
+    <div id="loading-spinner" class="spinner mb-3"></div>
+    <h2 id="loading-title" class="text-base font-semibold text-neutral-900 mb-1">Preparing 3D Interior</h2>
+    <p id="loading-subtitle" class="text-neutral-500 text-xs max-w-sm text-center">Assembling architectural geometries and lighting...</p>
+    <div id="loading-bar-wrap" class="w-48 h-1 bg-neutral-200 rounded-full mt-3 overflow-hidden hidden">
+      <div id="loading-bar" class="h-full bg-neutral-900 w-0 transition-all duration-150"></div>
+    </div>
+  </div>
+
+  <!-- Help & Guide Modal -->
+  <div id="help-modal" class="fixed inset-0 z-50 bg-neutral-950/40 hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-white text-neutral-900 border border-neutral-200 rounded-2xl p-5 sm:p-7 max-w-md w-full my-auto shadow-xl relative max-h-[calc(100dvh-1.5rem)] flex flex-col overflow-y-auto">
+      <div class="flex items-center justify-between mb-4 border-b border-neutral-200 pb-3">
+        <h3 class="text-sm sm:text-base font-semibold text-neutral-900 flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-neutral-600"></i> Walkthrough Guide
+        </h3>
+        <button id="close-help-btn" class="w-7 h-7 rounded-lg hover:bg-neutral-100 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-colors" aria-label="Close Help">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-3 text-xs text-neutral-600">
+        <div class="flex items-start gap-2.5 bg-neutral-50 p-3 rounded-xl border border-neutral-200">
+          <div class="w-6 h-6 rounded-md bg-neutral-200 text-neutral-800 flex items-center justify-center shrink-0 mt-0.5 text-xs"><i class="fa-solid fa-person-walking"></i></div>
+          <div>
+            <strong class="text-neutral-900 block mb-0.5 font-medium">Walk Locomotion</strong>
+            Use <kbd class="px-1 py-0.5 rounded bg-white border border-neutral-300 font-mono text-[10px]">W A S D</kbd> or Arrow keys on desktop. Use the on-screen joystick on mobile.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2.5 bg-neutral-50 p-3 rounded-xl border border-neutral-200">
+          <div class="w-6 h-6 rounded-md bg-neutral-200 text-neutral-800 flex items-center justify-center shrink-0 mt-0.5 text-xs"><i class="fa-solid fa-eye"></i></div>
+          <div>
+            <strong class="text-neutral-900 block mb-0.5 font-medium">Looking Around</strong>
+            Hold left-click and drag the mouse, or click the canvas to enter pointer lock. On touch devices, drag the right side of the screen.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-2.5 bg-neutral-50 p-3 rounded-xl border border-neutral-200">
+          <div class="w-6 h-6 rounded-md bg-neutral-200 text-neutral-800 flex items-center justify-center shrink-0 mt-0.5 text-xs"><i class="fa-solid fa-arrows-rotate"></i></div>
+          <div>
+            <strong class="text-neutral-900 block mb-0.5 font-medium">Product Inspection</strong>
+            Click or tap a product to see its price, details and photos. Drag mouse/touch or use <kbd class="px-1 py-0.5 rounded bg-white border border-neutral-300 font-mono text-[10px]">Q</kbd> / <kbd class="px-1 py-0.5 rounded bg-white border border-neutral-300 font-mono text-[10px]">E</kbd> or <kbd class="px-1 py-0.5 rounded bg-white border border-neutral-300 font-mono text-[10px]">&larr;</kbd> <kbd class="px-1 py-0.5 rounded bg-white border border-neutral-300 font-mono text-[10px]">&rarr;</kbd> keys to rotate.
+          </div>
+        </div>
+      </div>
+
+      <button id="close-help-modal-btn" class="w-full mt-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs rounded-xl transition-colors" aria-label="Resume Walkthrough">
+        Got It, Resume Walkthrough
+      </button>
+    </div>
+  </div>
+
+  <!-- Settings drawer (built from SETTINGS_SCHEMA) -->
+  <aside id="settings-panel" class="glass-panel hidden fixed top-0 right-0 bottom-0 z-[60] w-full sm:w-80 flex-col" style="border-radius:0">
+    <div class="flex items-center justify-between p-4 border-b border-neutral-200">
+      <h3 class="text-sm font-semibold flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Settings</h3>
+      <button id="close-settings-btn" class="w-7 h-7 rounded-lg hover:bg-neutral-100 flex items-center justify-center" aria-label="Close settings"><i class="fa-solid fa-xmark text-sm"></i></button>
+    </div>
+    <div id="settings-body" class="flex-1 overflow-y-auto px-4 pb-4"></div>
+    <div class="p-3 border-t border-neutral-200"><button id="reset-settings-btn" class="w-full py-2 text-xs font-medium rounded-lg border border-neutral-300 hover:bg-neutral-100">Reset to defaults</button></div>
+  </aside>
+
+  <!-- Application Engine Script -->
+  <script>
+  /* ==========================================================================
+     1. CONFIGURATION & CONSTANTS
+     ========================================================================== */
+  const APP_CONFIG = {
+    walkSpeed: 3.2,          // m/s (Shift = run)
+    runMultiplier: 1.8,
+    lookSmoothing: 18,       // higher = snappier camera, lower = floatier
+    headBob: true,
+    outlineColor: 0xff4d2e,  // hover / selected product outline
+    interactDistance: 10,    // max metres a product can be picked from
+    configUrl: 'walkthrough.json', // auto-loaded next to this HTML (or ?config=path.json)
+    showLoadButtons: false,  // set true to show the manual "Load GLB + JSON" button
+    mouseSensitivity: 0.0022,
+    touchSensitivity: 0.0035,
+    playerRadius: 0.35,      // Cylinder collision radius in meters
+    eyeHeight: 1.7,          // Player eye level
+    inspectRotateSpeed: 2.2, // Rotation speed in inspection
+    minPitch: -Math.PI / 2.3, // Clamped pitch down
+    maxPitch: Math.PI / 2.3,  // Clamped pitch up
+    dracoDecoderPath: 'https://www.gstatic.com/draco/versioned/decoders/1.4.3/',
+    maxDPRDesktop: 2.0,
+    maxDPRMobile: 1.5
+  };
+
+  const THEMES = {
+    minimal:  { name:'Minimal',  bg:'#eeece6', surface:'#ffffff', surface2:'#f5f5f5', text:'#171717', muted:'#6b6b6b', border:'#e5e5e5', ink:'#171717', 'on-ink':'#ffffff' },
+    midnight: { name:'Midnight', bg:'#121214', surface:'#1c1c1f', surface2:'#26262a', text:'#f2f2f2', muted:'#a1a1aa', border:'#34343a', ink:'#f2f2f2', 'on-ink':'#111111' },
+    sage:     { name:'Sage',     bg:'#e3e9dc', surface:'#fbfcf9', surface2:'#eef2ea', text:'#1d2a1f', muted:'#5b6b5d', border:'#d5dfce', ink:'#24382a', 'on-ink':'#ffffff' },
+    slate:    { name:'Slate',    bg:'#dfe6ee', surface:'#ffffff', surface2:'#eff3f8', text:'#0f1b2d', muted:'#586a80', border:'#d3dce8', ink:'#12233f', 'on-ink':'#ffffff' }
+  };
+  const LIGHT_PRESETS = {
+    daylight: { amb:0.85, sun:1.4, fill:0.6, color:0xfff8ee },
+    warm:     { amb:0.6,  sun:1.1, fill:0.9, color:0xffd9a8 },
+    cool:     { amb:0.9,  sun:1.2, fill:0.5, color:0xdfeaff },
+    studio:   { amb:1.1,  sun:0.9, fill:0.9, color:0xffffff }
+  };
+  const DEFAULT_SETTINGS = {
+    theme:'minimal', outlineColor:'#ff4d2e', selColor:'#ff4d2e', selStrength:0.3,
+    reticleShape:'dot', reticleColor:'#171717', reticleSize:6,
+    lightPreset:'daylight', exposure:1.1, glbLights:true, glbLightScale:1, shadows:true,
+    fov:65, walkSpeed:3.2, look:1, headBob:true, quality:'high'
+  };
+  const ACCENTS = ['#ff4d2e', '#2563eb', '#16a34a', '#f59e0b', '#ffffff', '#111111'];
+  const onOff = [[true,'On'],[false,'Off']];
+  const SETTINGS_SCHEMA = [
+    { sec:'Appearance', items:[
+      { k:'theme', t:'theme', l:'Theme' },
+      { k:'outlineColor', t:'color', l:'Outline color', p:ACCENTS },
+      { k:'selColor', t:'color', l:'Selected object color', p:ACCENTS },
+      { k:'selStrength', t:'range', l:'Selected tint', min:0, max:0.8, step:0.05 },
+      { k:'reticleShape', t:'seg', l:'Reticle', o:[['dot','Dot'],['ring','Circle']] },
+      { k:'reticleColor', t:'color', l:'Reticle color', p:['#171717','#ffffff','#ff4d2e','#16a34a'] },
+      { k:'reticleSize', t:'range', l:'Reticle size', min:3, max:14, step:1 } ]},
+    { sec:'Lighting', items:[
+      { k:'lightPreset', t:'seg', l:'Preset', o:[['daylight','Day'],['warm','Warm'],['cool','Cool'],['studio','Studio']] },
+      { k:'exposure', t:'range', l:'Brightness', min:0.5, max:2, step:0.05 },
+      { k:'glbLights', t:'seg', l:'Lights from GLB', o:onOff },
+      { k:'glbLightScale', t:'range', l:'GLB light power', min:0.05, max:4, step:0.05 },
+      { k:'shadows', t:'seg', l:'Shadows', o:onOff } ]},
+    { sec:'View & controls', items:[
+      { k:'fov', t:'range', l:'Field of view', min:50, max:90, step:1 },
+      { k:'walkSpeed', t:'range', l:'Walk speed', min:1.5, max:6, step:0.1 },
+      { k:'look', t:'range', l:'Look sensitivity', min:0.4, max:2.5, step:0.1 },
+      { k:'headBob', t:'seg', l:'Head bob', o:onOff },
+      { k:'quality', t:'seg', l:'Render quality', o:[['high','Sharp'],['low','Fast']] } ]}
+  ];
+
+  const AppState = {
+    WELCOME: 'welcome',
+    EXPLORE: 'explore',
+    INSPECT: 'inspect'
+  };
+
+  /* ==========================================================================
+     2. REUSABLE MATH ALLOCATIONS (Zero allocations in render loop)
+     ========================================================================== */
+  const _v1 = new THREE.Vector3();
+  const _v2 = new THREE.Vector3();
+  const _v3 = new THREE.Vector3();
+  const _box = new THREE.Box3();
+  const _screenPointer = new THREE.Vector2();
+  const _raycaster = new THREE.Raycaster();
+
+  /* ==========================================================================
+     3. AUDIO NARRATION MANAGER
+     ========================================================================== */
+  class AudioManager {
+    constructor() {
+      this.enabled = false;
+      this.isPlaying = false;
+      this.synth = ('speechSynthesis' in window) ? window.speechSynthesis : null;
+      this.currentUtterance = null;
+      this.statusCard = document.getElementById('narration-status-card');
+      this.textDisplay = document.getElementById('narration-text-display');
+      this.icon = document.getElementById('narration-icon');
+    }
+
+    toggle() {
+      this.enabled = !this.enabled;
+      if (this.enabled) {
+        this.icon.className = "fa-solid fa-volume-high w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center text-neutral-900";
+      } else {
+        this.icon.className = "fa-solid fa-volume-xmark w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center text-neutral-400";
+        this.stop();
+      }
+      return this.enabled;
+    }
+
+    speak(text) {
+      this.stop();
+      if (!this.enabled || !this.synth || !text) return;
+
+      this.currentUtterance = new SpeechSynthesisUtterance(text);
+      this.currentUtterance.rate = 1.0;
+      this.currentUtterance.pitch = 1.0;
+
+      this.currentUtterance.onstart = () => {
+        this.isPlaying = true;
+        this.statusCard.classList.remove('hidden');
+        this.textDisplay.textContent = text;
+      };
+
+      this.currentUtterance.onend = () => {
+        this.isPlaying = false;
+        this.statusCard.classList.add('hidden');
+      };
+
+      this.currentUtterance.onerror = () => {
+        this.isPlaying = false;
+        this.statusCard.classList.add('hidden');
+      };
+
+      this.synth.speak(this.currentUtterance);
+    }
+
+    stop() {
+      if (this.synth && (this.synth.speaking || this.synth.pending)) {
+        this.synth.cancel();
+      }
+      this.isPlaying = false;
+      if (this.statusCard) this.statusCard.classList.add('hidden');
+    }
+  }
+
+  /* ==========================================================================
+     4. LEVEL & ASSET MANAGEMENT
+     ========================================================================== */
+  class Level {
+    constructor(id, name) {
+      this.id = id;
+      this.name = name;
+      this.rootGroup = new THREE.Group();
+      this.products = [];
+      this.colliders = []; // Array of THREE.Box3 bounding boxes
+      this.roomBounds = new THREE.Box3(); // Outer perimeter box
+      this.spawnPosition = new THREE.Vector3(0, APP_CONFIG.eyeHeight, 5.5);
+      this.spawnYaw = 0;
+      this.spawnPitch = 0;
+      this.eyeHeight = APP_CONFIG.eyeHeight;
+      this.extraColliders = [];
+      this.startCameraName = null;
+      this.mixer = null;
+      this.animations = [];
+      this.glbLights = [];
+      this.lightingCfg = null;
+    }
+
+    dispose() {
+      if (this.mixer) {
+        this.mixer.stopAllAction();
+        this.mixer = null;
+      }
+      this.products.length = 0;
+      this.colliders.length = 0;
+
+      this.rootGroup.traverse((node) => {
+        if (node.isMesh) {
+          if (node.geometry) node.geometry.dispose();
+          if (node.material) {
+            if (Array.isArray(node.material)) {
+              node.material.forEach((m) => this.disposeMaterial(m));
+            } else {
+              this.disposeMaterial(node.material);
+            }
+          }
+        }
+      });
+    }
+
+    disposeMaterial(mat) {
+      if (!mat) return;
+      Object.keys(mat).forEach((k) => {
+        if (mat[k] && typeof mat[k].dispose === 'function') {
+          mat[k].dispose();
+        }
+      });
+      mat.dispose();
+    }
+  }
+
+  /* ==========================================================================
+     5. PRODUCTION WALKTHROUGH APPLICATION
+     ========================================================================== */
+  class WalkthroughApp {
+    constructor() {
+      this.currentState = AppState.WELCOME;
+      this.currentLevel = null;
+      this.defaultSampleLevel = null;
+
+      // Engine
+      this.scene = null;
+      this.camera = null;
+      this.renderer = null;
+      this.clock = new THREE.Clock();
+      this.pointerControls = null;
+      this.audioManager = new AudioManager();
+
+      // Shared Draco Loader Instance
+      this.dracoLoader = new THREE.DRACOLoader();
+      this.dracoLoader.setDecoderPath(APP_CONFIG.dracoDecoderPath);
+
+      // Walk Camera Orientation
+      this.cameraYaw = 0;      // smoothed (what the camera really uses)
+      this.cameraPitch = 0;
+      this.lookYaw = 0;        // target set by mouse / touch input
+      this.lookPitch = 0;
+      this.bobTime = 0;
+      this.frame = 0;
+      this.outlineRoot = null;
+      this.outlineMeshes = [];
+      this.slideTimer = null;
+      this.slideIdx = 0;
+      this.slideCount = 0;
+      this.ui = {};
+      this.settings = (() => { try { return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('iwt.settings') || '{}')); } catch (e) { return { ...DEFAULT_SETTINGS }; } })();
+      this.tinted = [];
+      this.rig = {};
+      this.playerVelocity = new THREE.Vector3();
+
+      // Saved Walking State (Preserved during Inspection)
+      this.savedWalkState = {
+        position: new THREE.Vector3(),
+        yaw: 0,
+        pitch: 0
+      };
+
+      // Selected Object & Safe Highlighting
+      this.selectedProduct = null;
+      this.selectedInitialSnapshot = null;
+      this.highlightedMaterialsMap = new Map();
+
+      // Input States
+      this.keyState = {
+        forward: false,
+        backward: false,
+        left: false,
+        right: false,
+        inspectRotLeft: false,
+        inspectRotRight: false,
+        run: false
+      };
+      this.isMouseDraggingLook = false;
+      this.mousePrev = { x: 0, y: 0 };
+      this.pointerDownPos = { x: 0, y: 0 };
+
+      // Touch Subsystem
+      this.isTouchCapableDevice = false;
+      this.touchState = {
+        joystickActive: false,
+        joystickTouchId: null,
+        joystickStart: { x: 0, y: 0 },
+        joystickVector: { x: 0, y: 0 },
+        lookActive: false,
+        lookTouchId: null,
+        lookLast: { x: 0, y: 0 },
+        touchStartTime: 0
+      };
+
+      // Inspection Dragging
+      this.isInspectDragging = false;
+      this.inspectLastPos = { x: 0, y: 0 };
+
+      // Camera Focus Interpolation
+      this.cameraAnim = {
+        active: false,
+        startPos: new THREE.Vector3(),
+        targetPos: new THREE.Vector3(),
+        startLookAt: new THREE.Vector3(),
+        targetLookAt: new THREE.Vector3(),
+        progress: 0,
+        duration: 0.8
+      };
+
+      this.initEngine();
+      this.detectTouchCapability();
+      this.setupDOMEvents();
+      this.setupTouchControls();
+      this.setupCallout();
+      this.setupSettings();
+      
+      // Build default architectural showroom level
+      this.buildDefaultLevel();
+      this.tryLoadConfig();
+
+      // Animation Loop
+      this.renderer.setAnimationLoop(this.animate.bind(this));
+    }
+
+    /* ------------------------------------------------------------------------
+       Engine Initialization
+       ------------------------------------------------------------------------ */
+    initEngine() {
+      const container = document.getElementById('canvas-container');
+
+      this.scene = new THREE.Scene();
+      // Architectural neutral daylight background & subtle fog
+      this.scene.background = new THREE.Color(0xeeece6);
+      this.scene.fog = new THREE.FogExp2(0xeeece6, 0.015);
+
+      this.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 120);
+      this.camera.rotation.order = 'YXZ'; // Yaw then pitch
+
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 1.1;
+      this.updateRendererDPR();
+      container.appendChild(this.renderer.domElement);
+
+      const lockEl = this.renderer.domElement;
+      this.pointerControls = {
+        get isLocked() { return document.pointerLockElement === lockEl; },
+        lock() { try { const p = lockEl.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (e) {} },
+        unlock() { if (document.pointerLockElement) document.exitPointerLock(); }
+      };
+      document.addEventListener('pointerlockchange', () => {
+        if (!this.pointerControls.isLocked) {
+          this.playerVelocity.set(0, 0, 0);
+          this.isMouseDraggingLook = false;
+        }
+      });
+
+      this.setupLighting();
+      window.addEventListener('resize', this.onWindowResize.bind(this));
+    }
+
+    updateRendererDPR() {
+      const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+      const maxDPR = isCoarse ? APP_CONFIG.maxDPRMobile : APP_CONFIG.maxDPRDesktop;
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDPR));
+    }
+
+    setupLighting() {
+      // Soft ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+      this.scene.add(ambientLight); this.rig.amb = ambientLight;
+
+      // Primary daylight sun
+      const sunLight = new THREE.DirectionalLight(0xfff8ee, 1.4);
+      sunLight.position.set(8, 14, 6);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 1024;
+      sunLight.shadow.mapSize.height = 1024;
+      sunLight.shadow.camera.near = 0.5;
+      sunLight.shadow.camera.far = 35;
+      const d = 10;
+      sunLight.shadow.camera.left = -d;
+      sunLight.shadow.camera.right = d;
+      sunLight.shadow.camera.top = d;
+      sunLight.shadow.camera.bottom = -d;
+      sunLight.shadow.bias = -0.0004;
+      this.scene.add(sunLight); this.rig.sun = sunLight;
+
+      // Soft architectural warm fill (replaces colored artificial lighting)
+      const architecturalFill = new THREE.PointLight(0xfff7ed, 0.6, 16);
+      architecturalFill.position.set(-3, 3.2, -2);
+      this.scene.add(architecturalFill); this.rig.fill = architecturalFill;
+    }
+
+    detectTouchCapability() {
+      // Robust detection: Touch capability across iOS, Android, tablets, and touch laptops
+      const hasTouchPoints = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0);
+      const hasTouchEvents = ('ontouchstart' in window);
+      const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+      const isSmallOrTabletScreen = window.innerWidth <= 1024 || window.matchMedia('(max-width: 1024px)').matches;
+
+      // Touch UI activates on mobile/tablet viewports with touch capability
+      this.isTouchCapableDevice = (hasTouchPoints || hasTouchEvents || isCoarsePointer) && (isSmallOrTabletScreen || isCoarsePointer);
+      this.updateTouchUI();
+    }
+
+    updateTouchUI() {
+      const touchControlsUI = document.getElementById('touch-controls');
+      const reticle = document.getElementById('reticle');
+      
+      if (this.isTouchCapableDevice && this.currentState === AppState.EXPLORE) {
+        touchControlsUI.classList.remove('hidden');
+        reticle.classList.add('hidden'); // Reticle is hidden on touch devices
+      } else {
+        touchControlsUI.classList.add('hidden');
+        if (this.currentState === AppState.EXPLORE) {
+          reticle.classList.remove('hidden');
+        } else {
+          reticle.classList.add('hidden');
+        }
+      }
+
+      // Update instructions panel between Desktop and Touch
+      const desktopGuide = document.getElementById('desktop-guide');
+      const touchGuide = document.getElementById('touch-guide');
+      if (desktopGuide && touchGuide) {
+        if (this.isTouchCapableDevice) {
+          desktopGuide.classList.add('hidden');
+          touchGuide.classList.remove('hidden');
+        } else {
+          desktopGuide.classList.remove('hidden');
+          touchGuide.classList.add('hidden');
+        }
+      }
+    }
+
+    /* ------------------------------------------------------------------------
+       Level Management: Architectural Showroom
+       ------------------------------------------------------------------------ */
+    buildDefaultLevel() {
+      const level = new Level("default-room", "Architectural Suite");
+
+      const roomW = 14, roomL = 14, roomH = 3.8;
+      level.roomBounds.set(
+        new THREE.Vector3(-roomW / 2 + APP_CONFIG.playerRadius + 0.1, 0, -roomL / 2 + APP_CONFIG.playerRadius + 0.1),
+        new THREE.Vector3(roomW / 2 - APP_CONFIG.playerRadius - 0.1, roomH, roomL / 2 - APP_CONFIG.playerRadius - 0.1)
+      );
+
+      // Architectural Floor (Micro-cement / honed stone neutral)
+      const floorMat = new THREE.MeshStandardMaterial({ color: 0xdfdcd5, roughness: 0.38, metalness: 0.04 });
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(roomW, roomL), floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      level.rootGroup.add(floor);
+
+      // Ceiling (Warm architectural off-white)
+      const ceilMat = new THREE.MeshStandardMaterial({ color: 0xf8f7f4, roughness: 0.95 });
+      const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(roomW, roomL), ceilMat);
+      ceiling.position.y = roomH;
+      ceiling.rotation.x = Math.PI / 2;
+      level.rootGroup.add(ceiling);
+
+      // Perimeter Walls (Matte architectural white)
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0xf3f1ec, roughness: 0.85 });
+      const walls = [
+        { p: [0, roomH / 2, -roomL / 2], r: [0, 0, 0] },
+        { p: [0, roomH / 2, roomL / 2], r: [0, Math.PI, 0] },
+        { p: [-roomW / 2, roomH / 2, 0], r: [0, Math.PI / 2, 0] },
+        { p: [roomW / 2, roomH / 2, 0], r: [0, -Math.PI / 2, 0] }
+      ];
+      walls.forEach((w) => {
+        const wall = new THREE.Mesh(new THREE.PlaneGeometry(roomW, roomH), wallMat);
+        wall.position.set(...w.p);
+        wall.rotation.set(...w.r);
+        wall.receiveShadow = true;
+        level.rootGroup.add(wall);
+      });
+
+      // Products Registration: Architectural Furnishings
+      const sofa = this.createSofaMesh();
+      sofa.position.set(0, 0, -2.5);
+      this.registerProduct(level, sofa, {
+        id: "sofa-001",
+        name: "Architectural Wool Sofa",
+        category: "Living & Seating",
+        description: "Contoured graphite wool upholstery with kiln-dried internal hardwood structure and discrete shadow reveal base.",
+        sku: "FURN-SOF-01",
+        price: "₹1,24,000",
+        images: this.demoImages("Wool Sofa", 215),
+        manufacturer: "Atelier Line",
+        narration: "Here is the Architectural Wool Sofa, upholstered in charcoal tailored wool with ergonomic multi-density foam cushions."
+      });
+
+      const table = this.createTableMesh();
+      table.position.set(0, 0, -0.8);
+      this.registerProduct(level, table, {
+        id: "table-001",
+        name: "Honed Stone Coffee Table",
+        category: "Surfaces",
+        description: "Honed light limestone top supported by a matte charcoal powder-coated steel understructure.",
+        sku: "FURN-TBL-02",
+        price: "₹68,500",
+        images: this.demoImages("Stone Coffee Table", 35),
+        manufacturer: "Forma Studio",
+        narration: "The Honed Stone Coffee Table features a natural matte stone surface supported by slender dark architectural steel legs."
+      });
+
+      const chair = this.createChairMesh();
+      chair.position.set(-2.5, 0, -1.0);
+      chair.rotation.y = Math.PI / 3.5;
+      this.registerProduct(level, chair, {
+        id: "chair-001",
+        name: "Studio Swivel Armchair",
+        category: "Office & Studio",
+        description: "360-degree precision swivel mechanism with tailored stone leather upholstery and brushed metal base.",
+        sku: "FURN-CHR-03",
+        price: "₹32,900",
+        images: this.demoImages("Swivel Armchair", 20, 2),
+        manufacturer: "AeroForm Labs",
+        narration: "The Studio Swivel Armchair is engineered for focused spaces, featuring full smooth rotational articulation."
+      });
+
+      const consoleMedia = this.createMediaConsoleMesh();
+      consoleMedia.position.set(0, 0, 3.2);
+      consoleMedia.rotation.y = Math.PI;
+      this.registerProduct(level, consoleMedia, {
+        id: "media-001",
+        name: "Walnut Media Console",
+        category: "Storage & Media",
+        description: "Solid natural walnut cabinet with slatted acoustic front panel and matte black display pedestal.",
+        sku: "FURN-MED-04",
+        price: "₹89,000",
+        images: this.demoImages("Walnut Console", 28),
+        manufacturer: "Nordic Atelier",
+        narration: "The Walnut Media Console combines solid warm timber joinery with integrated acoustic slat doors."
+      });
+
+      level.spawnPosition.set(0, APP_CONFIG.eyeHeight, 5.5);
+      level.spawnYaw = 0;
+      this.rebuildLevelColliders(level);
+
+      this.defaultSampleLevel = level;
+      this.loadLevel(level); // spinner stays up until tryLoadConfig() decides what to show
+    }
+
+    createSofaMesh() {
+      const g = new THREE.Group();
+      g.name = "Architectural_Wool_Sofa";
+      const m = new THREE.MeshStandardMaterial({ color: 0x323538, roughness: 0.78 }); // Tailored graphite wool
+      const base = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.45, 1.0), m);
+      base.position.y = 0.225;
+      base.castShadow = true; base.receiveShadow = true;
+      g.add(base);
+
+      const back = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.7, 0.25), m);
+      back.position.set(0, 0.7, -0.375);
+      back.castShadow = true;
+      g.add(back);
+
+      const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.55, 1.0), m);
+      leftArm.position.set(-1.15, 0.5, 0);
+      leftArm.castShadow = true;
+      g.add(leftArm);
+
+      const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.55, 1.0), m);
+      rightArm.position.set(1.15, 0.5, 0);
+      rightArm.castShadow = true;
+      g.add(rightArm);
+      return g;
+    }
+
+    createTableMesh() {
+      const g = new THREE.Group();
+      g.name = "Honed_Stone_Coffee_Table";
+      const topMat = new THREE.MeshStandardMaterial({ color: 0xe8e5df, roughness: 0.28, metalness: 0.05 }); // Honed limestone
+      const legMat = new THREE.MeshStandardMaterial({ color: 0x1f2124, metalness: 0.8, roughness: 0.25 }); // Matte dark steel
+
+      const top = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.85), topMat);
+      top.position.y = 0.45;
+      top.castShadow = true; top.receiveShadow = true;
+      g.add(top);
+
+      const legGeo = new THREE.CylinderGeometry(0.03, 0.02, 0.45, 16);
+      [[-0.65, 0.225, -0.32], [0.65, 0.225, -0.32], [-0.65, 0.225, 0.32], [0.65, 0.225, 0.32]].forEach((p) => {
+        const leg = new THREE.Mesh(legGeo, legMat);
+        leg.position.set(...p);
+        leg.castShadow = true;
+        g.add(leg);
+      });
+      return g;
+    }
+
+    createChairMesh() {
+      const g = new THREE.Group();
+      g.name = "Studio_Swivel_Armchair";
+      const chairMat = new THREE.MeshStandardMaterial({ color: 0x44413d, roughness: 0.62 }); // Saddle stone leather
+      const chromeMat = new THREE.MeshStandardMaterial({ color: 0x8c8f94, metalness: 0.85, roughness: 0.2 }); // Brushed steel
+
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.18, 0.8), chairMat);
+      seat.position.y = 0.45;
+      seat.castShadow = true;
+      g.add(seat);
+
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.7, 0.18), chairMat);
+      back.position.set(0, 0.8, -0.31);
+      back.castShadow = true;
+      g.add(back);
+
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.38, 0.36, 16), chromeMat);
+      base.position.y = 0.18;
+      base.castShadow = true;
+      g.add(base);
+      return g;
+    }
+
+    createMediaConsoleMesh() {
+      const g = new THREE.Group();
+      g.name = "Walnut_Media_Console";
+      const woodMat = new THREE.MeshStandardMaterial({ color: 0x42382f, roughness: 0.45 }); // Deep walnut
+      const screenMat = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.1, metalness: 0.9 });
+
+      const credenza = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.55, 0.55), woodMat);
+      credenza.position.y = 0.275;
+      credenza.castShadow = true; credenza.receiveShadow = true;
+      g.add(credenza);
+
+      const tv = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.05, 0.08), screenMat);
+      tv.position.set(0, 1.25, 0);
+      tv.castShadow = true;
+      g.add(tv);
+      return g;
+    }
+
+    registerProduct(level, modelRoot, metadata) {
+      // Calculate intrinsic untransformed bounding box in local coordinates
+      const origPos = modelRoot.position.clone();
+      const origRot = modelRoot.rotation.clone();
+      const origScale = modelRoot.scale.clone();
+
+      modelRoot.position.set(0, 0, 0);
+      modelRoot.rotation.set(0, 0, 0);
+      modelRoot.scale.set(1, 1, 1);
+      modelRoot.updateMatrixWorld(true);
+
+      _box.setFromObject(modelRoot);
+      const intrinsicSize = new THREE.Vector3();
+      _box.getSize(intrinsicSize);
+
+      // Restore position
+      modelRoot.position.copy(origPos);
+      modelRoot.rotation.copy(origRot);
+      modelRoot.scale.copy(origScale);
+      modelRoot.updateMatrixWorld(true);
+
+      const product = {
+        id: metadata.id || modelRoot.uuid.substring(0, 8),
+        name: metadata.name || modelRoot.name || "Showroom Furnishing",
+        category: metadata.category || "Interior Item",
+        description: metadata.description || "Specifications not available.",
+        sku: metadata.sku || "",
+        manufacturer: metadata.manufacturer || "",
+        price: metadata.price || "",
+        images: metadata.images || [],
+        narration: metadata.narration || "",
+        intrinsicDimensions: intrinsicSize,
+        modelRoot: modelRoot
+      };
+
+      modelRoot.userData.product = product;
+      modelRoot.userData.isSelectableRoot = true;
+
+      level.products.push(product);
+      if (!modelRoot.parent) level.rootGroup.add(modelRoot);
+    }
+
+    rebuildLevelColliders(level) {
+      level.colliders.length = 0;
+      level.products.forEach((prod) => {
+        const box = new THREE.Box3().setFromObject(prod.modelRoot);
+        // Expand slightly to guarantee player boundary clearance
+        box.min.x -= APP_CONFIG.playerRadius;
+        box.max.x += APP_CONFIG.playerRadius;
+        box.min.z -= APP_CONFIG.playerRadius;
+        box.max.z += APP_CONFIG.playerRadius;
+        level.colliders.push(box);
+      });
+      (level.extraColliders || []).forEach((obj) => {
+        const b = new THREE.Box3().setFromObject(obj);
+        b.min.x -= APP_CONFIG.playerRadius; b.max.x += APP_CONFIG.playerRadius;
+        b.min.z -= APP_CONFIG.playerRadius; b.max.z += APP_CONFIG.playerRadius;
+        level.colliders.push(b);
+      });
+    }
+
+    loadLevel(newLevel) {
+      if (this.selectedProduct) this.deselectProduct(false);
+      this.setOutlineRoot(null);
+      if (this.currentLevel) {
+        this.scene.remove(this.currentLevel.rootGroup);
+        if (this.currentLevel !== this.defaultSampleLevel) {
+          this.currentLevel.dispose();
+        }
+      }
+
+      this.currentLevel = newLevel;
+      this.scene.add(newLevel.rootGroup);
+      this.resetCameraToLevelSpawn();
+      document.getElementById('model-status-text').textContent = newLevel.name;
+      if (newLevel !== this.defaultSampleLevel) document.title = newLevel.name + ' \u2022 3D Walkthrough';
+      this.applyLighting();
+    }
+
+    /* ------------------------------------------------------------------------
+       GLB Upload & Normalized Hierarchy Resolver
+       ------------------------------------------------------------------------ */
+    demoImages(label, hue, n = 3) {
+      const text = String(label).replace(/[<>&]/g, '');
+      return Array.from({ length: n }, (_, i) => {
+        const h = (hue + i * 28) % 360;
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='360'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(${h},18%,78%)'/><stop offset='1' stop-color='hsl(${h},24%,42%)'/></linearGradient></defs><rect width='600' height='360' fill='url(#g)'/><text x='300' y='176' font-family='Arial' font-size='34' font-weight='700' fill='white' text-anchor='middle'>${text}</text><text x='300' y='218' font-family='Arial' font-size='20' fill='white' fill-opacity='0.8' text-anchor='middle'>Photo ${i + 1}</text></svg>`;
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+      });
+    }
+
+    /* Manual import: pick a .glb and (optionally) its .json together */
+    handleGLBUpload(e) {
+      const files = Array.from(e.target.files || []);
+      e.target.value = '';
+      const glb = files.find((f) => /\.(glb|gltf)$/i.test(f.name));
+      const json = files.find((f) => /\.json$/i.test(f.name));
+      if (!glb && !json) return;
+
+      this.showLoading('Importing 3D Model', `Reading ${(glb || json).name}...`);
+      (json ? json.text().then((t) => JSON.parse(t)) : Promise.resolve(null))
+        .then(async (cfg) => {
+          if (glb) {
+            await this.parseAndSetup(await glb.arrayBuffer(), '', cfg, glb.name);
+          } else if (cfg && cfg.glb) {
+            await this.loadFromConfig(cfg, location.href);
+          } else {
+            throw new Error('Select a .glb together with its .json');
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          this.hideLoading();
+          alert(err.message || 'Import failed');
+        });
+    }
+
+    parseAndSetup(data, basePath, cfg, name) {
+      return new Promise((resolve, reject) => {
+        const loader = new THREE.GLTFLoader();
+        loader.setDRACOLoader(this.dracoLoader);
+        loader.parse(data, basePath, (gltf) => {
+          try { this.setupUploadedModel(gltf, name, cfg); resolve(); } catch (err) { reject(err); }
+        }, (err) => reject(new Error('Failed to parse GLB: ' + ((err && err.message) || err))));
+      });
+    }
+
+    /* Auto-load walkthrough.json (+ the GLB it points to) that sits next to this page */
+    async tryLoadConfig() {
+      const url = new URLSearchParams(location.search).get('config') || APP_CONFIG.configUrl;
+      let cfg;
+      try {
+        const res = await fetch(url, { cache: 'no-cache' });
+        if (!res.ok) { this.hideLoading(); return; }
+        cfg = await res.json();
+      } catch (err) {
+        console.info('No walkthrough.json found - showing the built-in sample room.');
+        this.hideLoading();
+        return;
+      }
+      try {
+        this.showLoading('Loading Walkthrough', 'Fetching 3D scene...');
+        cfg._auto = true;
+        await this.loadFromConfig(cfg, url);
+      } catch (err) {
+        console.error('walkthrough.json failed:', err);
+        this.hideLoading();
+      }
+    }
+
+    async loadFromConfig(cfg, cfgUrl) {
+      const base = new URL(cfgUrl, location.href);
+      cfg._base = base.href;
+      const glbUrl = new URL(cfg.glb, base).href;
+      const res = await fetch(glbUrl);
+      if (!res.ok) throw new Error(`Could not load ${cfg.glb} (${res.status})`);
+      const total = +res.headers.get('content-length') || 0;
+      const bar = document.getElementById('loading-bar'), wrap = document.getElementById('loading-bar-wrap');
+      let buf;
+      if (res.body && total) {
+        wrap.classList.remove('hidden');
+        const rd = res.body.getReader(), parts = []; let got = 0;
+        for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; bar.style.width = Math.min(100, got / total * 100) + '%'; }
+        const u = new Uint8Array(got); let o = 0; parts.forEach((p) => { u.set(p, o); o += p.length; }); buf = u.buffer;
+      } else buf = await res.arrayBuffer();
+      wrap.classList.add('hidden');
+      await this.parseAndSetup(buf, new URL('.', glbUrl).href, cfg, String(cfg.glb).split('/').pop());
+    }
+
+    hasMesh(node) {
+      let found = false;
+      node.traverse((c) => { if (c.isMesh) found = true; });
+      return found;
+    }
+
+    /* Find GLB nodes by name. "Sofa_01" = exact, "Sofa*" = prefix. (GLTFLoader sanitizes names: spaces -> _) */
+    findNodes(root, name) {
+      if (!name) return [];
+      const wild = name.endsWith('*');
+      const key = THREE.PropertyBinding.sanitizeNodeName(wild ? name.slice(0, -1) : name);
+      const out = [];
+      root.traverse((o) => {
+        if (o === root || o.isCamera || o.isLight || !o.name) return;
+        if ((wild ? o.name.startsWith(key) : o.name === key) && this.hasMesh(o)) out.push(o);
+      });
+      const isInside = (a, b) => { for (let p = a.parent; p; p = p.parent) if (p === b) return true; return false; };
+      return out.filter((o) => !out.some((p) => p !== o && isInside(o, p)));
+    }
+
+    productMeta(p, node, i, base) {
+      return {
+        id: p.id || `${p.node}-${i}`,
+        name: p.name || node.name,
+        category: p.tag || p.category || 'Featured',
+        description: p.description || '',
+        sku: p.sku || '',
+        manufacturer: p.maker || p.manufacturer || '',
+        narration: p.narration || '',
+        price: p.price || '',
+        images: (p.images || []).map((u) => new URL(u, base).href)
+      };
+    }
+
+    /* Designer-authored GLB: keep the scene exactly as modelled (no recentering) */
+    prepareAuthoredModel(model, level, cfg) {
+      model.updateMatrixWorld(true);
+      model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
+      _box.setFromObject(model);
+      const b = _box.clone();
+      const r = APP_CONFIG.playerRadius + 0.1;
+      if (cfg.eyeHeight) level.eyeHeight = cfg.eyeHeight;
+      if (cfg.bounds && cfg.bounds.min && cfg.bounds.max) {
+        level.roomBounds.set(
+          new THREE.Vector3(cfg.bounds.min[0], -1, cfg.bounds.min[1]),
+          new THREE.Vector3(cfg.bounds.max[0], 99, cfg.bounds.max[1]));
+      } else {
+        // default: walkable area = model footprint, shrunk so the player stays inside the outer walls
+        level.roomBounds.set(
+          new THREE.Vector3(b.min.x + r, b.min.y - 1, b.min.z + r),
+          new THREE.Vector3(b.max.x - r, b.max.y + 5, b.max.z - r));
+      }
+      level.spawnPosition.set((b.min.x + b.max.x) / 2, b.min.y + level.eyeHeight, (b.min.z + b.max.z) / 2);
+      level.spawnYaw = 0;
+    }
+
+    /* Reads the start camera from the GLB: position, rotation (yaw/pitch) and eye height */
+    applyStartCamera(level, model, cfg) {
+      const cams = [];
+      model.updateMatrixWorld(true);
+      model.traverse((o) => { if (o.isCamera) cams.push(o); });
+      if (!cams.length) return null;
+      const want = cfg && cfg.startCamera ? THREE.PropertyBinding.sanitizeNodeName(cfg.startCamera) : '';
+      const cam = cams.find((c) => c.name === want) || cams.find((c) => /start|spawn|entry|main/i.test(c.name)) || cams[0];
+      if (want && cam.name !== want) console.warn(`startCamera "${cfg.startCamera}" not found, using "${cam.name}". Cameras in GLB:`, cams.map((c) => c.name));
+      const p = new THREE.Vector3(), q = new THREE.Quaternion();
+      cam.getWorldPosition(p);
+      cam.getWorldQuaternion(q);
+      const e = new THREE.Euler().setFromQuaternion(q, 'YXZ');
+      level.eyeHeight = Math.max(p.y, 0.9);
+      level.spawnPosition.set(p.x, level.eyeHeight, p.z);
+      level.spawnYaw = e.y;
+      level.spawnPitch = THREE.MathUtils.clamp(e.x, APP_CONFIG.minPitch, APP_CONFIG.maxPitch);
+      level.startCameraName = cam.name;
+      return cam.name;
+    }
+
+    /* Prints a starter JSON for the loaded GLB: call app.exportTemplate() in the console */
+    exportTemplate() {
+      const lvl = this.currentLevel;
+      const cams = [];
+      lvl.rootGroup.traverse((o) => { if (o.isCamera) cams.push(o.name); });
+      const products = [];
+      lvl.rootGroup.children.forEach((m) => m.children.forEach((c) => {
+        if (c.name && !c.isCamera && this.hasMesh(c)) products.push({ node: c.name, name: c.name, tag: '', price: '', description: '', images: [], narration: '' });
+      }));
+      return { title: lvl.name, glb: 'scene.glb', startCamera: lvl.startCameraName || cams[0] || '', products };
+    }
+
+    setupUploadedModel(gltf, fileName, cfg) {
+      const level = new Level('custom-glb', (cfg && cfg.title) || fileName);
+      const model = gltf.scene;
+      level.rootGroup.add(model);
+
+      if (cfg && cfg.recenter !== true) this.prepareAuthoredModel(model, level, cfg);
+      else this.fitAndGroundModel(model, level);
+
+      const camName = this.applyStartCamera(level, model, cfg);
+
+      if (gltf.animations && gltf.animations.length > 0) {
+        level.mixer = new THREE.AnimationMixer(model);
+        level.animations = gltf.animations;
+        gltf.animations.forEach((clip) => level.mixer.clipAction(clip).play());
+      }
+
+      model.traverse((o) => { if (o.isLight) { o.userData.base = o.intensity; level.glbLights.push(o); } });
+      level.lightingCfg = (cfg && cfg.lighting) || null;
+      if (level.lightingCfg) {
+        const L = level.lightingCfg;
+        if (LIGHT_PRESETS[L.preset]) this.settings.lightPreset = L.preset;
+        if (L.exposure) this.settings.exposure = L.exposure;
+        this.setupSettings();
+      }
+      model.updateMatrixWorld(true);
+      let registered = 0;
+      const base = (cfg && cfg._base) || location.href;
+
+      if (cfg && Array.isArray(cfg.products)) {
+        // JSON decides what is a product: only these nodes are clickable
+        cfg.products.forEach((p, i) => {
+          const nodes = this.findNodes(model, p.node);
+          if (!nodes.length) console.warn(`Product node not found in GLB: "${p.node}"`);
+          nodes.forEach((node) => { this.registerProduct(level, node, this.productMeta(p, node, i, base)); registered++; });
+        });
+        (cfg.colliders || []).forEach((n) => this.findNodes(model, n).forEach((o) => level.extraColliders.push(o)));
+      } else if (!cfg && model.children.length > 1) {
+        // raw GLB with no JSON: every top-level mesh group becomes a product
+        model.children.forEach((child, idx) => {
+          if (!this.hasMesh(child)) return;
+          this.registerProduct(level, child, {
+            id: `imported-${idx + 1}`, name: child.name || `Component ${idx + 1}`, category: 'Imported Asset',
+            description: 'Imported component mesh with preserved materials.', sku: `GLB-${idx + 1}`,
+            manufacturer: fileName.replace(/\.[^/.]+$/, ''), narration: `This is ${child.name || 'an imported structural asset'}.`
+          });
+          registered++;
+        });
+      }
+
+      if (registered === 0 && !cfg) {
+        this.registerProduct(level, model, {
+          id: 'imported-root', name: fileName.replace(/\.[^/.]+$/, ''), category: 'Imported 3D Model',
+          description: 'Full scene model import.', narration: `Displaying imported 3D asset ${fileName}.`
+        });
+      }
+
+      console.info(`[Walkthrough] "${level.name}": ${registered} products, start camera: ${camName || 'none (default spawn)'}`);
+      if (!cfg) console.log('JSON template for this GLB:\n' + JSON.stringify(this.exportTemplate(), null, 2));
+
+      this.rebuildLevelColliders(level);
+      this.loadLevel(level);
+      this.hideLoading();
+      if (!(cfg && cfg._auto)) this.setAppState(AppState.EXPLORE);
+    }
+
+    fitAndGroundModel(model, level) {
+      model.updateMatrixWorld(true);
+      _box.setFromObject(model);
+      const center = new THREE.Vector3();
+      const size = new THREE.Vector3();
+      _box.getCenter(center);
+      _box.getSize(size);
+
+      // Ground model so min Y is at 0
+      model.position.x = -center.x;
+      model.position.y = -_box.min.y;
+      model.position.z = -center.z;
+      model.updateMatrixWorld(true);
+
+      // Recalculate true world bounds
+      _box.setFromObject(model);
+      _box.getSize(size);
+
+      // Shadows
+      model.traverse((node) => {
+        if (node.isMesh) {
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+
+      // Calculate safe level perimeter
+      const span = Math.max(size.x, size.z, 8);
+      level.roomBounds.set(
+        new THREE.Vector3(-span * 1.5, 0, -span * 1.5),
+        new THREE.Vector3(span * 1.5, size.y * 3 + 5, span * 1.5)
+      );
+
+      // Position spawn outside model bounds
+      const spawnZ = Math.max(size.z * 1.2 + 2.5, 5.0);
+      level.spawnPosition.set(0, APP_CONFIG.eyeHeight, spawnZ);
+      level.spawnYaw = 0;
+    }
+
+    /* ------------------------------------------------------------------------
+       Deterministic Transform Snapshot & Highlighting
+       ------------------------------------------------------------------------ */
+    captureTransformSnapshot(obj) {
+      return {
+        position: obj.position.clone(),
+        quaternion: obj.quaternion.clone(),
+        rotation: obj.rotation.clone(),
+        scale: obj.scale.clone()
+      };
+    }
+
+    selectObject(productRoot) {
+      if (!productRoot || (this.selectedProduct && this.selectedProduct.modelRoot === productRoot)) return;
+
+      if (this.selectedProduct) {
+        this.deselectProduct(true);
+      }
+
+      const product = productRoot.userData.product;
+      this.selectedProduct = product;
+      this.selectedInitialSnapshot = this.captureTransformSnapshot(productRoot);
+
+      // Capture exact walk state before entering inspection
+      this.savedWalkState.position.copy(this.camera.position);
+      this.savedWalkState.yaw = this.cameraYaw;
+      this.savedWalkState.pitch = this.cameraPitch;
+
+      this.applyHighlight(productRoot);
+      this.updateInspectorUI(product);
+
+      // Release pointer lock on desktop so cursor is immediately usable in inspector
+      if (this.pointerControls && this.pointerControls.isLocked) {
+        this.pointerControls.unlock();
+      }
+
+      this.setAppState(AppState.INSPECT);
+
+      // Trigger narration if enabled
+      if (product.narration) {
+        this.audioManager.speak(product.narration);
+      }
+    }
+
+    deselectProduct(restoreTransform = true) {
+      if (!this.selectedProduct) return;
+
+      const modelRoot = this.selectedProduct.modelRoot;
+
+      // Restore exact pristine transform snapshot
+      if (restoreTransform && this.selectedInitialSnapshot) {
+        modelRoot.position.copy(this.selectedInitialSnapshot.position);
+        modelRoot.quaternion.copy(this.selectedInitialSnapshot.quaternion);
+        modelRoot.rotation.copy(this.selectedInitialSnapshot.rotation);
+        modelRoot.scale.copy(this.selectedInitialSnapshot.scale);
+        modelRoot.updateMatrixWorld(true);
+      }
+
+      this.removeHighlight(modelRoot);
+      this.audioManager.stop();
+
+      this.selectedProduct = null;
+      this.selectedInitialSnapshot = null;
+
+      // Reset all interaction drag & motion flags cleanly
+      this.isMouseDraggingLook = false;
+      this.isInspectDragging = false;
+      this.cameraAnim.active = false;
+      this.playerVelocity.set(0, 0, 0);
+      this.touchState.lookActive = false;
+      this.touchState.joystickActive = false;
+      for (const k in this.keyState) {
+        this.keyState[k] = false;
+      }
+
+      // Restore exact saved walk camera pose
+      this.camera.position.copy(this.savedWalkState.position);
+      this.setLook(this.savedWalkState.yaw, this.savedWalkState.pitch);
+
+      // Ensure pointer lock is unlocked without stuck state
+      if (this.pointerControls && this.pointerControls.isLocked) {
+        this.pointerControls.unlock();
+      }
+
+      this.closeInspectorUI();
+      this.setAppState(AppState.EXPLORE);
+    }
+
+    restoreRotation() {
+      if (!this.selectedProduct || !this.selectedInitialSnapshot) return;
+      const root = this.selectedProduct.modelRoot;
+      root.quaternion.copy(this.selectedInitialSnapshot.quaternion);
+      root.rotation.copy(this.selectedInitialSnapshot.rotation);
+      root.updateMatrixWorld(true);
+      this.updateInspectorTransformValues(this.selectedProduct);
+    }
+
+    restoreFullTransform() {
+      if (!this.selectedProduct || !this.selectedInitialSnapshot) return;
+      const root = this.selectedProduct.modelRoot;
+      root.position.copy(this.selectedInitialSnapshot.position);
+      root.quaternion.copy(this.selectedInitialSnapshot.quaternion);
+      root.rotation.copy(this.selectedInitialSnapshot.rotation);
+      root.scale.copy(this.selectedInitialSnapshot.scale);
+      root.updateMatrixWorld(true);
+      this.updateInspectorTransformValues(this.selectedProduct);
+    }
+
+    /* Outline (inverted hull): drawn on hover and while a product is selected */
+    applyHighlight(root) { this.setOutlineRoot(root); this.tint(root); }
+    removeHighlight() { this.setOutlineRoot(null); this.untint(); }
+
+    /* Selected tint: materials are cloned per selected mesh, so shared materials on other objects never change */
+    tint(root) {
+      this.untint();
+      if (!root || this.settings.selStrength <= 0) return;
+      root.traverse((m) => {
+        if (!m.isMesh || m.userData.isOutline) return;
+        const orig = m.material, arr = Array.isArray(orig) ? orig : [orig];
+        const cl = arr.map((x) => { if (!x || !x.emissive) return x; const c = x.clone(); c.userData.tint = 1; return c; });
+        this.tinted.push({ m, orig });
+        m.material = Array.isArray(orig) ? cl : cl[0];
+      });
+      this.paintTint();
+    }
+    paintTint() {
+      this.tinted.forEach(({ m }) => [].concat(m.material).forEach((x) => {
+        if (x && x.userData.tint) { x.emissive.set(this.settings.selColor); x.emissiveIntensity = this.settings.selStrength; }
+      }));
+    }
+    untint() {
+      this.tinted.forEach(({ m, orig }) => { [].concat(m.material).forEach((x) => { if (x && x.userData.tint) x.dispose(); }); m.material = orig; });
+      this.tinted = [];
+    }
+
+    setOutlineRoot(root) {
+      if (this.outlineRoot === root) return;
+      this.outlineMeshes.forEach((o) => { if (o.parent) o.parent.remove(o); if (o.material) o.material.dispose(); });
+      this.outlineMeshes = [];
+      this.outlineRoot = root;
+      if (!root) return;
+
+      _box.setFromObject(root);
+      _box.getSize(_v3);
+      const t = THREE.MathUtils.clamp(Math.max(_v3.x, _v3.y, _v3.z) * 0.012, 0.006, 0.03);
+      const meshes = [];
+      root.traverse((c) => { if (c.isMesh && !c.isSkinnedMesh && !c.userData.isOutline && c.geometry.attributes.normal) meshes.push(c); });
+      meshes.forEach((m) => {
+        const ws = m.getWorldScale(_v3).x || 1;
+        const uThick = { value: t / ws };
+        const mat = new THREE.MeshBasicMaterial({ color: this.settings.outlineColor, side: THREE.BackSide, fog: false });
+        mat.onBeforeCompile = (sh) => {
+          sh.uniforms.outlineThickness = uThick;
+          sh.vertexShader = 'uniform float outlineThickness;\n' + sh.vertexShader.replace(
+            '#include <begin_vertex>', '#include <begin_vertex>\n transformed += normalize(normal) * outlineThickness;');
+        };
+        const o = new THREE.Mesh(m.geometry, mat);
+        o.raycast = () => {};
+        o.userData.isOutline = true;
+        m.add(o);
+        this.outlineMeshes.push(o);
+      });
+    }
+
+    /* Nearest visible surface under the pointer decides: walls block products behind them */
+    pickProduct(nx, ny) {
+      if (!this.currentLevel) return null;
+      _screenPointer.set(nx, ny);
+      _raycaster.setFromCamera(_screenPointer, this.camera);
+      _raycaster.far = APP_CONFIG.interactDistance;
+      const hits = _raycaster.intersectObjects(this.currentLevel.rootGroup.children, true);
+      for (let i = 0; i < hits.length; i++) {
+        const o = hits[i].object;
+        if (o.userData.isOutline || !o.visible) continue;
+        return this.resolveSelectableRoot(o);
+      }
+      return null;
+    }
+
+    updateHover() {
+      const ui = this.ui;
+      let root = null, hovering = false;
+      if (this.currentState === AppState.INSPECT && this.selectedProduct) {
+        root = this.selectedProduct.modelRoot;
+      } else if (this.currentState === AppState.EXPLORE && this.pointerControls.isLocked) {
+        root = this.pickProduct(0, 0);
+        hovering = !!root;
+      }
+      this.setOutlineRoot(root);
+      if (ui.reticle) ui.reticle.style.transform = hovering ? 'translate(-50%, -50%) scale(2.4)' : 'translate(-50%, -50%)';
+      if (ui.hoverTag) {
+        ui.hoverTag.classList.toggle('hidden', !hovering);
+        if (hovering) ui.hoverTag.textContent = root.userData.product.name;
+      }
+    }
+
+    /* ------------------------------------------------------------------------
+       Inspection Camera Framing ("Focus Camera")
+       ------------------------------------------------------------------------ */
+    focusCameraOnProduct() {
+      if (!this.selectedProduct) return;
+      const root = this.selectedProduct.modelRoot;
+
+      _box.setFromObject(root);
+      const center = new THREE.Vector3();
+      const size = new THREE.Vector3();
+      _box.getCenter(center);
+      _box.getSize(size);
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fovRad = this.camera.fov * (Math.PI / 180);
+      let dist = (maxDim / 2) / Math.tan(fovRad / 2);
+      dist = Math.max(dist * 1.5, 1.4);
+
+      const dir = new THREE.Vector3().subVectors(this.camera.position, center).setY(0).normalize();
+      if (dir.lengthSq() < 0.001) dir.set(0, 0, 1);
+
+      const targetPos = new THREE.Vector3().copy(center).add(dir.multiplyScalar(dist));
+      targetPos.y = Math.max(center.y + (size.y * 0.2), (this.currentLevel ? this.currentLevel.eyeHeight : APP_CONFIG.eyeHeight) * 0.85);
+
+      this.cameraAnim.active = true;
+      this.cameraAnim.startPos.copy(this.camera.position);
+      this.cameraAnim.targetPos.copy(targetPos);
+      this.cameraAnim.startLookAt.set(0, 0, -1).applyQuaternion(this.camera.quaternion).add(this.camera.position);
+      this.cameraAnim.targetLookAt.copy(center);
+      this.cameraAnim.progress = 0;
+    }
+
+    /* ------------------------------------------------------------------------
+       State Management Transitions
+       ------------------------------------------------------------------------ */
+    setAppState(nextState) {
+      this.currentState = nextState;
+
+      const welcomeOverlay = document.getElementById('welcome-overlay');
+      const exitBtn = document.getElementById('exit-walkthrough-btn');
+
+      switch (nextState) {
+        case AppState.WELCOME:
+          welcomeOverlay.style.display = 'flex';
+          welcomeOverlay.classList.remove('opacity-0');
+          exitBtn.classList.add('hidden');
+          exitBtn.classList.remove('flex');
+          this.closeInspectorUI();
+          this.audioManager.stop();
+          if (this.pointerControls && this.pointerControls.isLocked) {
+            this.pointerControls.unlock();
+          }
+          break;
+
+        case AppState.EXPLORE:
+          welcomeOverlay.classList.add('opacity-0');
+          setTimeout(() => welcomeOverlay.style.display = 'none', 200);
+          exitBtn.classList.remove('hidden');
+          exitBtn.classList.add('flex');
+          this.showHintToast();
+          break;
+
+        case AppState.INSPECT:
+          this.openInspectorUI();
+          break;
+      }
+
+      this.updateTouchUI();
+    }
+
+    setLook(yaw, pitch) {
+      this.lookYaw = this.cameraYaw = yaw;
+      this.lookPitch = this.cameraPitch = pitch;
+      this.camera.rotation.set(pitch, yaw, 0);
+    }
+
+    resetCameraToLevelSpawn() {
+      if (!this.currentLevel) return;
+      this.camera.position.copy(this.currentLevel.spawnPosition);
+      this.setLook(this.currentLevel.spawnYaw, this.currentLevel.spawnPitch || 0);
+      this.playerVelocity.set(0, 0, 0);
+    }
+
+    /* ------------------------------------------------------------------------
+       Input Handling Architecture (Strict Button Disambiguation)
+       ------------------------------------------------------------------------ */
+    setupDOMEvents() {
+      const canvas = this.renderer.domElement;
+
+      // Prevent Context Menu on canvas completely
+      canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+      document.getElementById('canvas-container').addEventListener('contextmenu', (e) => e.preventDefault());
+
+      // Desktop Pointer Down: STRICT Left-Button Only (button === 0)
+      canvas.addEventListener('pointerdown', (e) => {
+        // Touch events are dispatched separately by dedicated touch handlers
+        if (e.pointerType === 'touch') return;
+
+        // Right button (2), Middle button (1), or any non-primary button is IGNORED
+        if (e.button !== 0) return;
+
+        this.pointerDownPos.x = e.clientX;
+        this.pointerDownPos.y = e.clientY;
+
+        if (this.currentState === AppState.EXPLORE) {
+          this.isMouseDraggingLook = true;
+          this.mousePrev.x = e.clientX;
+          this.mousePrev.y = e.clientY;
+        } else if (this.currentState === AppState.INSPECT) {
+          this.isInspectDragging = true;
+          this.inspectLastPos.x = e.clientX;
+          this.inspectLastPos.y = e.clientY;
+        }
+      });
+
+      // Desktop Pointer Move: Active only when primary button (buttons & 1) is pressed
+      window.addEventListener('pointermove', (e) => {
+        if (e.pointerType === 'touch') return;
+
+        // 1. Pointer Lock Look
+        if (this.pointerControls && this.pointerControls.isLocked && this.currentState === AppState.EXPLORE) {
+          this.lookYaw -= Math.max(-120, Math.min(120, e.movementX)) * APP_CONFIG.mouseSensitivity;
+          this.lookPitch -= Math.max(-120, Math.min(120, e.movementY)) * APP_CONFIG.mouseSensitivity;
+          this.lookPitch = Math.max(APP_CONFIG.minPitch, Math.min(APP_CONFIG.maxPitch, this.lookPitch));
+          return;
+        }
+
+        // 2. Unlocked Left-Drag Look
+        if (this.isMouseDraggingLook && this.currentState === AppState.EXPLORE) {
+          // If primary left button was released outside window, cancel drag look
+          if ((e.buttons & 1) !== 1) {
+            this.isMouseDraggingLook = false;
+            return;
+          }
+
+          const dx = e.clientX - this.mousePrev.x;
+          const dy = e.clientY - this.mousePrev.y;
+
+          this.lookYaw -= dx * APP_CONFIG.mouseSensitivity * 1.5;
+          this.lookPitch -= dy * APP_CONFIG.mouseSensitivity * 1.5;
+          this.lookPitch = Math.max(APP_CONFIG.minPitch, Math.min(APP_CONFIG.maxPitch, this.lookPitch));
+
+          this.mousePrev.x = e.clientX;
+          this.mousePrev.y = e.clientY;
+          return;
+        }
+
+        // 3. Inspect Mode Product Rotation via Left-Drag
+        if (this.isInspectDragging && this.currentState === AppState.INSPECT && this.selectedProduct) {
+          if ((e.buttons & 1) !== 1) {
+            this.isInspectDragging = false;
+            return;
+          }
+
+          const dx = e.clientX - this.inspectLastPos.x;
+          this.selectedProduct.modelRoot.rotation.y += dx * (APP_CONFIG.inspectRotateSpeed * 0.0035);
+          this.selectedProduct.modelRoot.updateMatrixWorld(true);
+          this.updateInspectorTransformValues(this.selectedProduct);
+
+          this.inspectLastPos.x = e.clientX;
+          this.inspectLastPos.y = e.clientY;
+        }
+      });
+
+      // Desktop Pointer Up: STRICT Left-Button Only
+      window.addEventListener('pointerup', (e) => {
+        if (e.pointerType === 'touch') return;
+        if (e.button !== 0) return;
+
+        const dragDist = Math.hypot(e.clientX - this.pointerDownPos.x, e.clientY - this.pointerDownPos.y);
+
+        // Raycast selection only on a true click (drag distance < 6px) directly on the 3D canvas
+        // Pick only when the crosshair is live (pointer locked), on touch, or to switch product while inspecting.
+        // The first click on the canvas just captures the mouse - it must not select what's under the cursor.
+        const canPick = this.pointerControls.isLocked || this.isTouchCapableDevice || this.currentState === AppState.INSPECT;
+        if (dragDist < 6 && e.target === canvas && canPick &&
+            (this.currentState === AppState.EXPLORE || this.currentState === AppState.INSPECT)) {
+          this.raycastSelection(e.clientX, e.clientY);
+        }
+
+        this.isMouseDraggingLook = false;
+        this.isInspectDragging = false;
+      });
+
+      // Re-enter pointer lock on desktop canvas click only if not inspecting and not on touch devices
+      canvas.addEventListener('click', () => {
+        if (this.currentState === AppState.EXPLORE && !this.isTouchCapableDevice && !this.selectedProduct) {
+          if (this.pointerControls && !this.pointerControls.isLocked) {
+            this.pointerControls.lock();
+          }
+        }
+      });
+
+      // Keyboard Listeners (Exploration Locomotion + Q/E & Arrows Inspect Rotation)
+      window.addEventListener('keydown', this.onKeyDown.bind(this));
+      window.addEventListener('keyup', this.onKeyUp.bind(this));
+      window.addEventListener('blur', () => { for (const k in this.keyState) this.keyState[k] = false; });
+
+      // UI Actions
+      document.getElementById('start-walkthrough-btn').addEventListener('click', () => {
+        this.setAppState(AppState.EXPLORE);
+        if (!this.isTouchCapableDevice && this.pointerControls) {
+          this.pointerControls.lock();
+        }
+      });
+
+      document.getElementById('exit-walkthrough-btn').addEventListener('click', () => {
+        if (this.selectedProduct) this.deselectProduct(true);
+        this.resetCameraToLevelSpawn();
+        this.setAppState(AppState.WELCOME);
+      });
+
+      document.getElementById('reset-view-btn').addEventListener('click', () => {
+        if (this.selectedProduct) this.deselectProduct(true);
+        this.resetCameraToLevelSpawn();
+        this.setAppState(AppState.EXPLORE);
+      });
+
+      document.getElementById('narration-btn').addEventListener('click', () => {
+        const on = this.audioManager.toggle();
+        if (on && this.selectedProduct && this.selectedProduct.narration) this.audioManager.speak(this.selectedProduct.narration);
+      });
+
+      document.getElementById('close-inspector-btn').addEventListener('click', () => this.deselectProduct(true));
+      document.getElementById('deselect-obj-btn').addEventListener('click', () => this.deselectProduct(true));
+      document.getElementById('focus-obj-btn').addEventListener('click', this.focusCameraOnProduct.bind(this));
+
+      // Help Modal
+      const helpModal = document.getElementById('help-modal');
+      document.getElementById('help-btn').addEventListener('click', () => {
+        helpModal.classList.remove('hidden');
+        helpModal.classList.add('flex');
+      });
+      document.getElementById('close-help-btn').addEventListener('click', () => {
+        helpModal.classList.add('hidden');
+        helpModal.classList.remove('flex');
+      });
+      document.getElementById('close-help-modal-btn').addEventListener('click', () => {
+        helpModal.classList.add('hidden');
+        helpModal.classList.remove('flex');
+      });
+
+      // File Input
+      document.getElementById('glb-file-input').addEventListener('change', this.handleGLBUpload.bind(this));
+
+      // Dynamic activation on touch screens (handles tablets/laptops with touch)
+      window.addEventListener('touchstart', () => {
+        if (!this.isTouchCapableDevice) {
+          this.isTouchCapableDevice = true;
+          this.updateTouchUI();
+        }
+      }, { passive: true, once: true });
+    }
+
+    onKeyDown(e) {
+      if (e.key === 'Escape' && this.settingsOpen()) { this.toggleSettings(false); return; }
+      if (e.key === 'Escape') {
+        if (this.currentState === AppState.INSPECT) {
+          this.deselectProduct(true);
+          return;
+        }
+        const helpModal = document.getElementById('help-modal');
+        if (!helpModal.classList.contains('hidden')) {
+          helpModal.classList.add('hidden');
+          helpModal.classList.remove('flex');
+          return;
+        }
+      }
+
+      // Locomotion strictly enabled ONLY in EXPLORE mode
+      if (this.currentState === AppState.EXPLORE) {
+        switch (e.code) {
+          case 'KeyW':
+          case 'ArrowUp': this.keyState.forward = true; break;
+          case 'KeyS':
+          case 'ArrowDown': this.keyState.backward = true; break;
+          case 'KeyA': this.keyState.left = true; break;
+          case 'KeyD': this.keyState.right = true; break;
+          case 'ArrowLeft': this.keyState.left = true; break;
+          case 'ArrowRight': this.keyState.right = true; break;
+          case 'ShiftLeft':
+          case 'ShiftRight': this.keyState.run = true; break;
+        }
+      } else if (this.currentState === AppState.INSPECT) {
+        // Q/E and ArrowLeft/Right exclusively rotate object; zero locomotion
+        if (e.code === 'ArrowLeft' || e.code === 'KeyQ') {
+          this.keyState.inspectRotLeft = true;
+        }
+        if (e.code === 'ArrowRight' || e.code === 'KeyE') {
+          this.keyState.inspectRotRight = true;
+        }
+      }
+    }
+
+    onKeyUp(e) {
+      switch (e.code) {
+        case 'KeyW':
+        case 'ArrowUp': this.keyState.forward = false; break;
+        case 'KeyS':
+        case 'ArrowDown': this.keyState.backward = false; break;
+        case 'KeyA':
+          this.keyState.left = false;
+          break;
+        case 'KeyD':
+          this.keyState.right = false;
+          break;
+        case 'ArrowLeft':
+          this.keyState.left = false;
+          this.keyState.inspectRotLeft = false;
+          break;
+        case 'ArrowRight':
+          this.keyState.right = false;
+          this.keyState.inspectRotRight = false;
+          break;
+        case 'KeyQ':
+          this.keyState.inspectRotLeft = false;
+          break;
+        case 'KeyE':
+          this.keyState.inspectRotRight = false;
+          break;
+        case 'ShiftLeft':
+        case 'ShiftRight':
+          this.keyState.run = false;
+          break;
+      }
+    }
+
+    raycastSelection(clientX, clientY) {
+      if (!this.currentLevel) return;
+      let nx = 0, ny = 0;
+      if (!(this.pointerControls && this.pointerControls.isLocked)) {
+        nx = (clientX / window.innerWidth) * 2 - 1;
+        ny = -(clientY / window.innerHeight) * 2 + 1;
+      }
+      const root = this.pickProduct(nx, ny);
+      if (root) this.selectObject(root);
+    }
+
+    resolveSelectableRoot(mesh) {
+      let node = mesh;
+      while (node && node !== this.scene) {
+        if (node.userData && node.userData.isSelectableRoot) {
+          return node;
+        }
+        node = node.parent;
+      }
+      return null;
+    }
+
+    /* ------------------------------------------------------------------------
+       Touch Subsystem (Movement Joystick, Touch Look & Direct Tap Selection)
+       ------------------------------------------------------------------------ */
+    setupTouchControls() {
+      const zone = document.getElementById('joystick-zone');
+      const knob = document.getElementById('joystick-handle');
+      const lookZone = document.getElementById('touch-look-zone');
+      const canvas = this.renderer.domElement;
+
+      // Virtual Joystick Touch Handlers
+      zone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (this.touchState.joystickActive) return;
+        const t = e.changedTouches[0];
+        this.touchState.joystickActive = true;
+        this.touchState.joystickTouchId = t.identifier;
+        const rect = zone.getBoundingClientRect();
+        this.touchState.joystickStart.x = rect.left + rect.width / 2;
+        this.touchState.joystickStart.y = rect.top + rect.height / 2;
+        const maxRadius = rect.width * 0.35;
+        this.updateJoystickVector(t.clientX, t.clientY, maxRadius, knob);
+      }, { passive: false });
+
+      // Touch Look & Tap Selection on Look Area
+      let lookTouchStartPos = { x: 0, y: 0 };
+      lookZone.addEventListener('touchstart', (e) => {
+        const t = e.changedTouches[0];
+        this.touchState.touchStartTime = performance.now();
+        lookTouchStartPos.x = t.clientX;
+        lookTouchStartPos.y = t.clientY;
+
+        if (this.currentState === AppState.EXPLORE) {
+          this.touchState.lookActive = true;
+          this.touchState.lookTouchId = t.identifier;
+          this.touchState.lookLast.x = t.clientX;
+          this.touchState.lookLast.y = t.clientY;
+        }
+      }, { passive: false });
+
+      // Canvas Touch Tap Detection (Enables tapping objects outside look zone too)
+      let canvasTouchStart = { x: 0, y: 0, time: 0 };
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          canvasTouchStart.x = t.clientX;
+          canvasTouchStart.y = t.clientY;
+          canvasTouchStart.time = performance.now();
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchend', (e) => {
+        if (e.changedTouches.length === 1 && this.currentState === AppState.EXPLORE) {
+          const t = e.changedTouches[0];
+          const dt = performance.now() - canvasTouchStart.time;
+          const dist = Math.hypot(t.clientX - canvasTouchStart.x, t.clientY - canvasTouchStart.y);
+          // If quick stationary tap directly on 3D canvas, select product
+          if (dt < 280 && dist < 10) {
+            this.raycastSelection(t.clientX, t.clientY);
+          }
+        }
+      }, { passive: true });
+
+      // Touch Drag Rotation in Inspection Mode on Mobile
+      let inspectTouchLastX = 0;
+      canvas.addEventListener('touchstart', (e) => {
+        if (this.currentState === AppState.INSPECT && e.touches.length === 1) {
+          inspectTouchLastX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (this.currentState === AppState.INSPECT && this.selectedProduct && e.touches.length === 1) {
+          const currentX = e.touches[0].clientX;
+          const dx = currentX - inspectTouchLastX;
+          this.selectedProduct.modelRoot.rotation.y += dx * (APP_CONFIG.inspectRotateSpeed * 0.0035);
+          this.selectedProduct.modelRoot.updateMatrixWorld(true);
+          this.updateInspectorTransformValues(this.selectedProduct);
+          inspectTouchLastX = currentX;
+        }
+      }, { passive: true });
+
+      // Window Touch Move Handlers
+      window.addEventListener('touchmove', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          if (this.touchState.joystickActive && t.identifier === this.touchState.joystickTouchId) {
+            const rect = zone.getBoundingClientRect();
+            const maxRadius = rect.width * 0.35;
+            this.updateJoystickVector(t.clientX, t.clientY, maxRadius, knob);
+          } else if (this.touchState.lookActive && t.identifier === this.touchState.lookTouchId) {
+            const dx = t.clientX - this.touchState.lookLast.x;
+            const dy = t.clientY - this.touchState.lookLast.y;
+
+            this.lookYaw -= dx * APP_CONFIG.touchSensitivity;
+            this.lookPitch -= dy * APP_CONFIG.touchSensitivity;
+            this.lookPitch = Math.max(APP_CONFIG.minPitch, Math.min(APP_CONFIG.maxPitch, this.lookPitch));
+
+            this.touchState.lookLast.x = t.clientX;
+            this.touchState.lookLast.y = t.clientY;
+          }
+        }
+      }, { passive: false });
+
+      // Window Touch End Handlers
+      const endTouch = (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          if (t.identifier === this.touchState.joystickTouchId) {
+            this.touchState.joystickActive = false;
+            this.touchState.joystickTouchId = null;
+            this.touchState.joystickVector.x = 0;
+            this.touchState.joystickVector.y = 0;
+            knob.style.transform = `translate(0px, 0px)`;
+          }
+          if (t.identifier === this.touchState.lookTouchId) {
+            // Tap check on look area
+            const dt = performance.now() - this.touchState.touchStartTime;
+            const dist = Math.hypot(t.clientX - lookTouchStartPos.x, t.clientY - lookTouchStartPos.y);
+            if (dt < 280 && dist < 10 && this.currentState === AppState.EXPLORE) {
+              this.raycastSelection(t.clientX, t.clientY);
+            }
+            this.touchState.lookActive = false;
+            this.touchState.lookTouchId = null;
+          }
+        }
+      };
+
+      window.addEventListener('touchend', endTouch);
+      window.addEventListener('touchcancel', endTouch);
+    }
+
+    updateJoystickVector(clientX, clientY, maxR, knobElem) {
+      const dx = clientX - this.touchState.joystickStart.x;
+      const dy = clientY - this.touchState.joystickStart.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < 4) {
+        this.touchState.joystickVector.x = 0;
+        this.touchState.joystickVector.y = 0;
+        knobElem.style.transform = `translate(0px, 0px)`;
+        return;
+      }
+
+      const angle = Math.atan2(dy, dx);
+      const clampedDist = Math.min(dist, maxR);
+      const nx = Math.cos(angle) * (clampedDist / maxR);
+      const ny = Math.sin(angle) * (clampedDist / maxR);
+
+      this.touchState.joystickVector.x = nx;
+      this.touchState.joystickVector.y = ny;
+
+      knobElem.style.transform = `translate(${Math.cos(angle) * clampedDist}px, ${Math.sin(angle) * clampedDist}px)`;
+    }
+
+    /* ------------------------------------------------------------------------
+       UI Synchronizers
+       ------------------------------------------------------------------------ */
+    setupCallout() {
+      const $ = (id) => document.getElementById(id);
+      this.ui = {
+        root: $('callout-root'), card: $('product-callout'), dot: $('callout-dot'), svg: $('callout-svg'), line: $('callout-line'),
+        slideshow: $('slideshow'), slides: $('slides'), dots: $('slide-dots'),
+        prev: $('slide-prev'), next: $('slide-next'), hoverTag: $('hover-tag'), reticle: $('reticle')
+      };
+      this.ui.prev.addEventListener('click', () => { this.goSlide(this.slideIdx - 1); this.startSlides(); });
+      this.ui.next.addEventListener('click', () => { this.goSlide(this.slideIdx + 1); this.startSlides(); });
+      this.ui.slideshow.addEventListener('mouseenter', () => this.stopSlides());
+      this.ui.slideshow.addEventListener('mouseleave', () => this.startSlides());
+      if (!APP_CONFIG.showLoadButtons) $('load-label').classList.add('hidden');
+    }
+
+    openInspectorUI() {
+      this.ui.root.classList.remove('hidden');
+      this.updateCalloutPosition();
+    }
+
+    closeInspectorUI() {
+      this.ui.root.classList.add('hidden');
+      this.stopSlides();
+    }
+
+    updateInspectorUI(product) {
+      const $ = (id) => document.getElementById(id);
+      $('obj-name').textContent = product.name;
+      $('obj-category').textContent = product.category;
+      $('obj-description').textContent = product.description;
+      $('obj-description').classList.toggle('hidden', !product.description);
+      $('obj-price').textContent = product.price;
+      $('obj-price').classList.toggle('hidden', !product.price);
+      $('obj-sku').textContent = product.sku ? `SKU ${product.sku}` : '';
+      $('obj-maker').textContent = product.manufacturer || '';
+      const d = product.intrinsicDimensions;
+      $('obj-dims').textContent = `${d.x.toFixed(2)} × ${d.y.toFixed(2)} × ${d.z.toFixed(2)} m`;
+      this.setSlides(product.images, product.name);
+    }
+
+    updateInspectorTransformValues() { /* transform readout removed with the callout redesign */ }
+
+    setSlides(images, alt) {
+      const ui = this.ui;
+      this.stopSlides();
+      ui.slides.innerHTML = '';
+      ui.dots.innerHTML = '';
+      const list = (images || []).filter(Boolean);
+      this.slideCount = list.length;
+      this.slideIdx = 0;
+      ui.slideshow.classList.toggle('hidden', !list.length);
+      ui.prev.classList.toggle('hidden', list.length < 2);
+      ui.next.classList.toggle('hidden', list.length < 2);
+      if (!list.length) return;
+      list.forEach((src, i) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = alt || '';
+        img.draggable = false;
+        img.className = 'w-full h-full object-cover shrink-0';
+        img.onerror = () => { img.onerror = null; img.src = this.demoImages(alt || 'Image', 200, 1)[0]; };
+        ui.slides.appendChild(img);
+        if (list.length > 1) {
+          const dot = document.createElement('button');
+          dot.setAttribute('aria-label', `Image ${i + 1}`);
+          dot.onclick = () => { this.goSlide(i); this.startSlides(); };
+          ui.dots.appendChild(dot);
+        }
+      });
+      this.goSlide(0);
+      this.startSlides();
+    }
+
+    goSlide(i) {
+      if (!this.slideCount) return;
+      this.slideIdx = (i + this.slideCount) % this.slideCount;
+      this.ui.slides.style.transform = `translateX(-${this.slideIdx * 100}%)`;
+      Array.from(this.ui.dots.children).forEach((d, k) => {
+        d.className = 'h-1.5 rounded-full bg-white transition-all ' + (k === this.slideIdx ? 'w-4' : 'w-1.5 opacity-60');
+      });
+    }
+
+    startSlides() {
+      this.stopSlides();
+      if (this.slideCount > 1) this.slideTimer = setInterval(() => this.goSlide(this.slideIdx + 1), 3500);
+    }
+
+    stopSlides() {
+      if (this.slideTimer) { clearInterval(this.slideTimer); this.slideTimer = null; }
+    }
+
+    /* Card sits BESIDE the product (never over it); a line runs from a dot on the product to the card edge.
+       Falls back to a docked panel on phones or when the product fills the screen. */
+    updateCalloutPosition() {
+      const ui = this.ui;
+      if (!this.selectedProduct || ui.root.classList.contains('hidden')) return;
+      this.camera.updateMatrixWorld();
+      _box.setFromObject(this.selectedProduct.modelRoot);
+      const w = window.innerWidth, h = window.innerHeight;
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, behind = false;
+      for (let i = 0; i < 8; i++) {
+        _v3.set(i & 1 ? _box.max.x : _box.min.x, i & 2 ? _box.max.y : _box.min.y, i & 4 ? _box.max.z : _box.min.z).project(this.camera);
+        if (_v3.z >= 1) behind = true;
+        const px = (_v3.x * 0.5 + 0.5) * w, py = (-_v3.y * 0.5 + 0.5) * h;
+        x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+      }
+      const cw = ui.card.offsetWidth, ch = ui.card.offsetHeight, gap = 64, cy = (y0 + y1) / 2;
+      const roomR = w - x1 - gap - cw - 12, roomL = x0 - gap - cw - 12;
+      const docked = w < 640 || behind || x1 < 0 || x0 > w || (roomR < 0 && roomL < 0);
+      ui.card.classList.toggle('callout-docked', docked);
+      ui.dot.style.display = ui.svg.style.display = docked ? 'none' : 'block';
+      if (docked) return;
+      const right = roomR >= roomL;
+      const left = right ? x1 + gap : x0 - gap - cw;
+      const top = Math.min(Math.max(cy - ch / 2, 72), h - ch - 12);
+      const inset = (x1 - x0) * 0.12;
+      const ax = Math.min(Math.max(right ? x1 - inset : x0 + inset, 8), w - 8);
+      const ay = Math.min(Math.max(cy, 80), h - 20);
+      const ex = right ? left : left + cw, ey = Math.min(Math.max(ay, top + 18), top + ch - 18);
+      ui.card.style.left = left + 'px'; ui.card.style.top = top + 'px';
+      ui.dot.style.left = ax + 'px'; ui.dot.style.top = ay + 'px';
+      ui.line.setAttribute('x1', ax); ui.line.setAttribute('y1', ay); ui.line.setAttribute('x2', ex); ui.line.setAttribute('y2', ey);
+    }
+
+    showHintToast() {
+      const hint = document.getElementById('walkthrough-hint');
+      const hintText = document.getElementById('hint-text');
+      if (this.isTouchCapableDevice) {
+        hintText.textContent = "Use joystick to walk • Swipe to look • Tap to inspect";
+      } else {
+        hintText.textContent = "WASD to walk • Drag to look • Click to inspect";
+      }
+      hint.classList.remove('opacity-0');
+      setTimeout(() => hint.classList.add('opacity-0'), 4000);
+    }
+
+    showLoading(title, subtitle) {
+      const o = document.getElementById('loading-overlay');
+      document.getElementById('loading-title').textContent = title;
+      document.getElementById('loading-subtitle').textContent = subtitle;
+      o.classList.remove('opacity-0');
+      o.style.display = 'flex';
+    }
+
+    hideLoading() {
+      const o = document.getElementById('loading-overlay');
+      o.classList.add('opacity-0');
+      setTimeout(() => o.style.display = 'none', 200);
+    }
+
+    /* ------------------------------------------------------------------------
+       Render Loop & Locomotion Collision Resolution
+       ------------------------------------------------------------------------ */
+    animate() {
+      const delta = Math.min(this.clock.getDelta(), 0.08);
+
+      // Animation Mixer for GLBs with embedded clips
+      if (this.currentLevel && this.currentLevel.mixer) {
+        this.currentLevel.mixer.update(delta);
+      }
+
+      // Smooth Focus Camera Interpolation
+      if (this.cameraAnim.active) {
+        this.cameraAnim.progress += delta / this.cameraAnim.duration;
+        const t = Math.min(1.0, this.cameraAnim.progress);
+        const ease = t * t * (3 - 2 * t);
+
+        this.camera.position.lerpVectors(this.cameraAnim.startPos, this.cameraAnim.targetPos, ease);
+        const look = _v1.lerpVectors(this.cameraAnim.startLookAt, this.cameraAnim.targetLookAt, ease);
+        this.camera.lookAt(look);
+
+        if (t >= 1.0) {
+          this.cameraAnim.active = false;
+          this.setLook(this.camera.rotation.y, this.camera.rotation.x);
+        }
+      }
+
+      // Inspection Arrow-Key and Q/E Rotation
+      if (this.currentState === AppState.INSPECT && this.selectedProduct) {
+        let r = 0;
+        if (this.keyState.inspectRotLeft) r -= APP_CONFIG.inspectRotateSpeed * delta;
+        if (this.keyState.inspectRotRight) r += APP_CONFIG.inspectRotateSpeed * delta;
+        if (r !== 0) {
+          this.selectedProduct.modelRoot.rotation.y += r;
+          this.selectedProduct.modelRoot.updateMatrixWorld(true);
+          this.updateInspectorTransformValues(this.selectedProduct);
+        }
+      }
+
+      // Exploration Locomotion with Collision
+      if (this.currentState === AppState.EXPLORE && !this.cameraAnim.active) {
+        // Frame-rate independent look smoothing (input moves the target, the camera eases toward it)
+        const k = 1 - Math.exp(-APP_CONFIG.lookSmoothing * delta);
+        this.cameraYaw += (this.lookYaw - this.cameraYaw) * k;
+        this.cameraPitch += (this.lookPitch - this.cameraPitch) * k;
+        this.camera.rotation.set(this.cameraPitch, this.cameraYaw, 0);
+        this.updateLocomotion(delta);
+      }
+
+      if ((this.frame++ & 1) === 0) this.updateHover();
+      if (this.currentState === AppState.INSPECT) this.updateCalloutPosition();
+
+      this.renderer.render(this.scene, this.camera);
+    }
+
+    updateLocomotion(delta) {
+      let forward = 0;
+      let side = 0;
+
+      if (this.isTouchCapableDevice && this.touchState.joystickActive) {
+        forward = -this.touchState.joystickVector.y;
+        side = this.touchState.joystickVector.x;
+      } else {
+        if (this.keyState.forward) forward += 1;
+        if (this.keyState.backward) forward -= 1;
+        if (this.keyState.left) side -= 1;
+        if (this.keyState.right) side += 1;
+      }
+
+      const len = Math.hypot(side, forward);
+      if (len > 1) {
+        side /= len;
+        forward /= len;
+      }
+
+      const friction = 10.0;
+      const speed = APP_CONFIG.walkSpeed * (this.keyState.run ? APP_CONFIG.runMultiplier : 1);
+      this.playerVelocity.x -= this.playerVelocity.x * friction * delta;
+      this.playerVelocity.z -= this.playerVelocity.z * friction * delta;
+
+      if (len > 0.05) {
+        _v1.set(0, 0, -1).applyAxisAngle(THREE.Object3D.DefaultUp, this.cameraYaw);
+        _v2.set(1, 0, 0).applyAxisAngle(THREE.Object3D.DefaultUp, this.cameraYaw);
+
+        const move = _v1.multiplyScalar(forward).add(_v2.multiplyScalar(side));
+        this.playerVelocity.x += move.x * speed * friction * delta;
+        this.playerVelocity.z += move.z * speed * friction * delta;
+      }
+
+      // X/Z Separate Collision Resolution with Wall/Furniture Sliding
+      const currentPos = this.camera.position;
+      const proposedX = currentPos.x + this.playerVelocity.x * delta;
+      const proposedZ = currentPos.z + this.playerVelocity.z * delta;
+
+      // Test X step
+      if (this.isValidPosition(proposedX, currentPos.z)) {
+        currentPos.x = proposedX;
+      } else {
+        this.playerVelocity.x = 0;
+      }
+
+      // Test Z step
+      if (this.isValidPosition(currentPos.x, proposedZ)) {
+        currentPos.z = proposedZ;
+      } else {
+        this.playerVelocity.z = 0;
+      }
+
+      const eye = this.currentLevel ? this.currentLevel.eyeHeight : APP_CONFIG.eyeHeight;
+      const spd = Math.hypot(this.playerVelocity.x, this.playerVelocity.z);
+      this.bobTime += spd * delta * 2.4;
+      const bob = APP_CONFIG.headBob ? Math.sin(this.bobTime) * 0.018 * Math.min(1, spd / 2) : 0;
+      currentPos.y = eye + bob;
+    }
+
+    isValidPosition(x, z) {
+      if (!this.currentLevel) return true;
+
+      // 1. Room bounds test
+      const bounds = this.currentLevel.roomBounds;
+      if (x < bounds.min.x || x > bounds.max.x || z < bounds.min.z || z > bounds.max.z) {
+        return false;
+      }
+
+      // 2. Obstacle box tests
+      const colliders = this.currentLevel.colliders;
+      for (let i = 0; i < colliders.length; i++) {
+        const box = colliders[i];
+        if (x >= box.min.x && x <= box.max.x && z >= box.min.z && z <= box.max.z) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    /* ------------------------------------------------------------------------
+       Settings (saved in localStorage, applied live)
+       ------------------------------------------------------------------------ */
+    saveSettings() { try { localStorage.setItem('iwt.settings', JSON.stringify(this.settings)); } catch (e) {} }
+    settingsOpen() { return !document.getElementById('settings-panel').classList.contains('hidden'); }
+    toggleSettings(force) {
+      const p = document.getElementById('settings-panel');
+      const open = force !== undefined ? force : p.classList.contains('hidden');
+      p.classList.toggle('hidden', !open); p.classList.toggle('flex', open);
+      if (open && this.pointerControls.isLocked) this.pointerControls.unlock();
+    }
+
+    setupSettings() {
+      const $ = (id) => document.getElementById(id), box = $('settings-body');
+      box.innerHTML = '';
+      SETTINGS_SCHEMA.forEach((sec) => {
+        const h = document.createElement('h4'); h.className = 'st-h'; h.textContent = sec.sec; box.appendChild(h);
+        sec.items.forEach((it) => box.appendChild(this.buildControl(it)));
+      });
+      $('settings-btn').onclick = () => this.toggleSettings();
+      $('welcome-settings-btn').onclick = () => this.toggleSettings(true);
+      $('close-settings-btn').onclick = () => this.toggleSettings(false);
+      $('reset-settings-btn').onclick = () => { this.settings = { ...DEFAULT_SETTINGS }; this.saveSettings(); this.setupSettings(); };
+      this.applySettings();
+    }
+
+    buildControl(it) {
+      const s = this.settings, row = document.createElement('div'), ctl = document.createElement('div');
+      row.className = 'st-row'; ctl.className = 'st-ctl';
+      const lab = document.createElement('span'); lab.textContent = it.l; row.append(lab, ctl);
+      const set = (v) => { s[it.k] = v; this.saveSettings(); this.applySettings(); };
+      const mark = (btn, cls) => ctl.querySelectorAll('.' + cls).forEach((x) => x.classList.toggle('on', x === btn));
+      const btn = (cls, on) => { const b = document.createElement('button'); b.className = cls + (on ? ' on' : ''); ctl.appendChild(b); return b; };
+      if (it.t === 'theme') {
+        Object.entries(THEMES).forEach(([id, t]) => {
+          const b = btn('st-sw', s.theme === id); b.title = t.name; b.setAttribute('aria-label', t.name + ' theme');
+          b.style.background = `linear-gradient(135deg, ${t.bg} 50%, ${t.ink} 50%)`;
+          b.onclick = () => { mark(b, 'st-sw'); set(id); };
+        });
+      } else if (it.t === 'color') {
+        it.p.forEach((c) => { const b = btn('st-sw', s[it.k].toLowerCase() === c); b.style.background = c; b.title = c; b.onclick = () => { mark(b, 'st-sw'); inp.value = c; set(c); }; });
+        var inp = document.createElement('input'); inp.type = 'color'; inp.value = s[it.k];
+        inp.oninput = () => { mark(null, 'st-sw'); set(inp.value); }; ctl.appendChild(inp);
+      } else if (it.t === 'range') {
+        const r = document.createElement('input'), v = document.createElement('span');
+        r.type = 'range'; r.min = it.min; r.max = it.max; r.step = it.step; r.value = s[it.k];
+        v.style.cssText = 'width:2.2rem;text-align:right;color:var(--muted)'; v.textContent = (+s[it.k]).toFixed(it.step < 1 ? 2 : 0);
+        r.oninput = () => { v.textContent = (+r.value).toFixed(it.step < 1 ? 2 : 0); set(+r.value); };
+        ctl.append(r, v);
+      } else {
+        it.o.forEach(([val, txt]) => { const b = btn('st-seg', s[it.k] === val); b.textContent = txt; b.onclick = () => { mark(b, 'st-seg'); set(val); }; });
+      }
+      return row;
+    }
+
+    applySettings() {
+      const s = this.settings, t = THEMES[s.theme] || THEMES.minimal, r = document.documentElement;
+      Object.entries(t).forEach(([k, v]) => { if (k !== 'name') r.style.setProperty('--' + k, v); });
+      r.style.setProperty('--sel', s.selColor); r.style.setProperty('--ret', s.reticleColor);
+      r.style.setProperty('--ret-size', s.reticleSize + 'px'); r.dataset.ret = s.reticleShape;
+      this.scene.background.set(t.bg); this.scene.fog.color.set(t.bg);   // scene backdrop follows the theme
+      this.outlineMeshes.forEach((o) => o.material.color.set(s.outlineColor));
+      this.paintTint();
+      this.camera.fov = s.fov; this.camera.updateProjectionMatrix();
+      this.renderer.toneMappingExposure = s.exposure;
+      if (this.renderer.shadowMap.enabled !== s.shadows) {
+        this.renderer.shadowMap.enabled = s.shadows;
+        this.scene.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.needsUpdate = true; }); });
+      }
+      APP_CONFIG.walkSpeed = s.walkSpeed; APP_CONFIG.headBob = s.headBob;
+      APP_CONFIG.mouseSensitivity = 0.0022 * s.look; APP_CONFIG.touchSensitivity = 0.0035 * s.look;
+      APP_CONFIG.maxDPRDesktop = s.quality === 'high' ? 2 : 1; APP_CONFIG.maxDPRMobile = s.quality === 'high' ? 1.5 : 1;
+      this.updateRendererDPR();
+      this.applyLighting();
+    }
+
+    /* Built-in rig (ambient + sun + fill) + any lights authored inside the GLB.
+       When the GLB has its own lights the built-in rig is dimmed so the designer's lighting leads. */
+    applyLighting() {
+      const s = this.settings, rg = this.rig, lv = this.currentLevel;
+      if (!rg.amb) return;
+      const p = LIGHT_PRESETS[s.lightPreset] || LIGHT_PRESETS.daylight;
+      const gl = (lv && lv.glbLights) || [], L = (lv && lv.lightingCfg) || {};
+      const k = L.rig != null ? L.rig : (gl.length ? 0.35 : 1);
+      rg.amb.intensity = p.amb * k; rg.sun.intensity = p.sun * k; rg.fill.intensity = p.fill * k;
+      rg.sun.color.set(p.color); rg.fill.color.set(p.color);
+      rg.sun.castShadow = s.shadows;
+      gl.forEach((l) => { l.visible = s.glbLights; l.intensity = l.userData.base * s.glbLightScale * (L.glbScale || 1); });
+    }
+
+    onWindowResize() {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.updateRendererDPR();
+      this.detectTouchCapability();
+    }
+  }
+
+  // Boot Application
+  window.addEventListener('DOMContentLoaded', () => {
+    window.app = new WalkthroughApp();
+  });
+  </script>
+</body>
+</html>

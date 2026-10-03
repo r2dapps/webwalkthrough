@@ -28,6 +28,10 @@ Drop in a `.glb`, describe your products in a JSON file, and publish on any stat
 | 💡 **Realistic lighting** | sRGB colour, studio environment reflections, soft shadows, GLB lights and **emissive materials** (glowing signs, LEDs, screens) |
 | 🗣 **Voice narration** | Uses the device's default voice (numbers always spoken in English), optional per-language voices, or your own recorded audio |
 | ▶️ **Product animations** | Products with GLB animation clips get a Play / Pause / Replay button, shown in both the room and the 3D preview |
+| 🚪 **Interactive architecture** | Click to open sliding windows, sliding doors, vertical windows and hinged doors. Everything is detected from your GLB node names |
+| 🪑 **Sit on chairs and sofas** | Click a seat and the camera glides into it, facing the nearest table. Press W A S D to stand up |
+| 🧱 **Furniture colliders** | Tables, racks, planters, sofas and chairs block the player automatically |
+| 👥 **Multiplayer + 3D voice chat** | Create a room, share the code or invite link, walk around together as avatars, and talk. Voices get quieter and directional with distance. Free WebRTC, no server to run |
 | 🧾 **Data-driven** | Products live in `walkthrough.json`. No code changes needed |
 | 🎛 **Settings drawer** | Themes, outline / selection / reticle colours, lighting, FOV, speed, quality (saved per browser) |
 
@@ -70,11 +74,13 @@ For each selected product the card decides automatically:
 1. **Photos listed and loading** → image slideshow.
 2. **No `images`, an empty list, or every file fails to load (404)** → the product's own 3D model is shown on a turntable.
 
+**Rotation:** drag to spin without limit and tilt up to about 75° up or down (see the top and the underside). Motion is eased and a flick keeps gliding. Use the **mouse wheel** or a **two-finger pinch** to zoom, and **double-click / double-tap** to reset the view. It resumes its slow turntable when you let go.
+
 The preview works in every theme (the hint badge and stage adapt to Minimal, Midnight, Sage and Slate).
 
 So you can ship a catalogue immediately and add photos later, product by product. The preview uses a clone of the model, so rotating it never moves anything in the scene.
 
-> Rotation is deliberately *yaw plus a limited tilt*: products always stay upright, the base never flips to the top, and the model's pivot point never causes odd orbits.
+> The turn is a clean orbit (spin + tilt, never roll), so the product never ends up sideways and the holo stage stays flat.
 
 ## 🧾 `walkthrough.json` reference
 
@@ -87,6 +93,9 @@ So you can ship a catalogue immediately and add photos later, product by product
 | `bounds` | Walkable area `{min:[x,z], max:[x,z]}` |
 | `colliders` | Node names players can't walk through (`Wall_*` = prefix match) |
 | `lighting` | See below |
+| `welcome` | Wording of the start screen (see *Start screen* below) |
+| `rtc` | Optional: `iceServers` (TURN) and `peer` (your own signalling server) for voice chat |
+| `autoColliders` | `false` turns off the automatic furniture colliders |
 | `voiceLang` | Default narration language, e.g. `en-IN` (default), `hi-IN`, `te-IN` |
 | `products[]` | `node`, `name`, `tag`, `price`, `description`, `images[]`, `narration`, `sku`, `maker`, plus optional `narrationLang`, `audio`, `animation`, `animationLoop` |
 
@@ -105,6 +114,86 @@ So you can ship a catalogue immediately and add photos later, product by product
   "maker": "Garden Essentials"
 }
 ```
+
+## 👋 Start screen (two steps)
+
+**Step 1: the start page.** A separate full-screen page themed on pipes and fittings: a pipe network with flowing water, floating elbow / tee / valve / coupling shapes, the shop name, a pipe-style divider, **category tiles with fitting icons**, a short message and the Enter button. The 3D scene loads behind it and the button shows *Loading showroom… 42%* until it is ready.
+
+**Step 2: the walkthrough card.** Pressing *Enter the Showroom* reveals the original card over the live scene (controls guide + *Enter Walkthrough*), exactly as before. *Exit* in the showroom returns to this card.
+
+Change the start-page words from `walkthrough.json`; all fields are optional:
+
+```json
+"welcome": {
+  "eyebrow": "Welcome to",
+  "title": "Sudhakar Pipes & Fittings",
+  "tagline": "Quality PVC pipes, garden fittings & plumbing essentials",
+  "message": "Step inside our 3D showroom. Walk around, open the doors, take a seat, and click any product to see its price and details.",
+  "categories": ["Garden Pipes", "PVC Connectors", "Ball Valves", "Clamps", "Fittings"],
+  "highlights": ["Walk-through 3D", "Live product preview", "Voice chat"],
+  "button": "Enter the Showroom",
+  "contact": "Your address · phone number",
+  "footer": "Developed by Razel Tech"
+}
+```
+
+- `categories` (up to 5) become the icon tiles. The icon is picked from the word: *valve*, *clamp*, *tee*, *connector / coupling*, *pipe / hose*, otherwise an elbow.
+- Leave out `highlights` and the small pills are built from your product count and tags.
+- Leave out `welcome` entirely and the card uses your top-level `title`.
+- `contact` is shown small at the bottom only when you set it. `footer` defaults to *Developed by Razel Tech*; set it to `""` to hide it.
+- The browser tab title uses the same name.
+
+## 🚪 Doors, windows and seats
+
+> **Modeller animations win.** If your 3D modeller adds an animation clip to a window or door in Blender (for example `WindowOpen`), that window/door is driven by **their clip**: click it to play the clip forward (open) and click again to play it backward (close). It does not autoplay. Windows and doors **without** a clip keep the automatic slide / swing described below, so you can migrate one window at a time with no code change. (The **Play animation** button in the product card is for *products*; doors and windows use a click.)
+
+Nothing to configure: the app finds them by name when the GLB loads.
+
+| What | How it is detected | Behaviour |
+|---|---|---|
+| Sliding window / door / vertical window | Sibling panels named `…Door_01`, `…Door_02` or `…Window_01`, `…Window_02` next to a `…Frame` | The last panel slides over the first, along its frame, in whichever direction the panels are laid out |
+| Hinged door | A node named `SM_Door` inside a group that has a `…Frame` | Swings about 100° on the hinge edge nearest the frame, away from the room |
+| Seats | Nodes starting with `SM_Chair`, `SingleSofa`, `Sofa` | Click to sit; W A S D or the *Stand up* button to leave |
+| Colliders | `SM_Table`, `RoundTable`, `Table`, `SM_Rack`, `SM_PlanterBox`, plus the seats | Walk around them. If you spawn inside one you can still walk out |
+
+Aim at one and a hint such as *Open window* or *Sit here* appears. Tap it on a phone. Opening a door or window in a multiplayer room opens it for everyone.
+
+Turn off the automatic colliders with `"autoColliders": false`. You can still list your own in `colliders`.
+
+## 🤖 Characters (Classic or Cute robot)
+
+Pick the look of your avatar in **Settings → Multiplayer character**, or in the multiplayer window (people icon). Everyone in the room sees the character you chose, and you can switch at any time.
+
+| Character | Look |
+|---|---|
+| **Classic** (default) | The original human-style avatar |
+| **Cute robot** | Bean-shaped body, small dome head with a glowing visor and antenna, stubby legs, round mitten hands. Blinks, glows and the antenna pulses while talking, bounces slightly when walking |
+
+## 👥 Multiplayer and voice chat
+
+Click the **people icon** in the header, then **Create a room** (or enter a friend's 5-letter code and **Join**). *Copy invite link* gives a URL such as `…/?room=K4P9X` that opens the join box for the visitor.
+
+- Avatars show each person's name and colour, walk, and sit when they sit.
+- A glowing ring under an avatar shows who is talking.
+- Voices are **3D**: quieter with distance and coming from the speaker's direction. Use headphones.
+- A room works well for about 6 people, since everyone connects directly to everyone.
+
+**How it works:** free **WebRTC** through [PeerJS](https://peerjs.com). The free PeerJS cloud only introduces people to each other; audio and positions go directly between browsers. No server of yours is involved. The microphone needs **HTTPS**, which GitHub Pages provides.
+
+**Limits to know about**
+- On some strict networks (some mobile carriers, corporate Wi-Fi) a direct connection is impossible and a **TURN relay** is needed. Add one in `walkthrough.json`:
+  ```json
+  "rtc": { "iceServers": [
+    { "urls": "stun:stun.l.google.com:19302" },
+    { "urls": "turn:YOUR_TURN_HOST:3478", "username": "user", "credential": "pass" } ] }
+  ```
+  Free TURN plans exist (for example Open Relay by Metered). Anyone with the credentials can use the relay, so use a plan with usage limits.
+- The free PeerJS cloud has no uptime guarantee. For a production site run your own signalling server (`npx peerjs --port 9000`, a few lines of Node) and point to it:
+  ```json
+  "rtc": { "peer": { "host": "voice.example.com", "port": 443, "secure": true, "path": "/" } }
+  ```
+- Room codes are not passwords: anyone who knows a code can join. Do not put private information in the scene.
+- A hidden browser tab pauses its avatar until it is visible again; voice keeps working.
 
 ## 🗣 Voice narration
 
@@ -199,6 +288,17 @@ A static site is public by design: anything the browser downloads can be copied.
 - **Never inject JSON text with `innerHTML`.** This app uses `textContent`; keep it that way if you add fields.
 - Minifying/obfuscating JavaScript only slows copying down. It is not security.
 
+## 🧩 Developer notes (kept code)
+
+Nothing useful was deleted. Where behaviour changed, the old code is kept and commented, with its purpose:
+
+| Where | What is kept |
+|---|---|
+| `class Avatar` | The original human avatar is untouched; `buildRobot()` adds the second character. `style` picks one |
+| Preview `initPreview` / `renderPreview` | The first drag handlers (limited tilt) and the instant-rotation line are kept in comments as *previous version*. The new free-orbit block replaces them |
+| `buildInteractives` | Automatic slide / hinge logic stays as the **fallback**; modeller clips take over only where they exist |
+| Walkthrough card | The original card is restored unchanged; the new start page sits in front of it (`#start-page`) |
+
 ## 🛠 Troubleshooting
 
 | Symptom | Fix |
@@ -211,7 +311,7 @@ A static site is public by design: anything the browser downloads can be copied.
 
 ## 🗺 Roadmap ideas
 
-Search and category filter · "Add to cart / Enquire on WhatsApp" buttons · AR on phones (`<model-viewer>`) · minimap · guided tour · analytics on viewed products.
+Light switches and a time-of-day slider · Enquire on WhatsApp · product search with fly-to · shareable `?product=` links · text chat · AR on phones (`<model-viewer>`) · guided tour · analytics on viewed products.
 
 ---
 

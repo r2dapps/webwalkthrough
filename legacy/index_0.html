@@ -83,21 +83,6 @@
 
     /* Product callout (floating card anchored to the product, like the index.html hotspots) */
     #reticle { transition: transform 0.12s ease; }
-    @keyframes welcome-rise { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
-    @keyframes welcome-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    #start-page .welcome-content { animation: welcome-rise .8s cubic-bezier(.2,.8,.2,1) both; }
-    #start-page .wp { stroke: rgba(148,197,255,.09); stroke-width: 26px; }
-    #start-page .wcp { stroke: rgba(148,197,255,.14); stroke-width: 40px; }
-    #start-page .wf { stroke: url(#wg); stroke-width: 3px; stroke-dasharray: 8 18; opacity: .6; animation: wflow 3.2s linear infinite; }
-    @keyframes wflow { to { stroke-dashoffset: -104; } }
-    @keyframes worb { 0%,100% { transform: translate(0,0); } 50% { transform: translate(24px,-18px); } }
-    #start-page .orb { animation: worb 14s ease-in-out infinite; }
-    #start-page .gt { background: linear-gradient(90deg,#fff,#7dd3fc 60%,#6ee7b7); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    #sp-enter:disabled { cursor: wait; animation: none; }
-    @media (prefers-reduced-motion: reduce) { #start-page .wf, #start-page .orb, #sp-enter { animation: none; } }
-    #sp-chips span { animation: welcome-fade .5s ease both; }
-    @keyframes welcome-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(56,189,248,.45); } 50% { box-shadow: 0 0 0 8px rgba(56,189,248,0); } }
-    #sp-enter { animation: welcome-pulse 2.4s ease-in-out infinite; }
     #preview-canvas, #preview-hint, #slideshow::after { display: none; }
     #slideshow.preview-on { background: radial-gradient(ellipse at 50% 85%, rgba(56,189,248,.38), transparent 62%), linear-gradient(180deg, var(--surface2), var(--surface)); }
     :root[data-theme="midnight"] #slideshow.preview-on { background: radial-gradient(ellipse at 50% 85%, rgba(56,189,248,.55), transparent 65%), linear-gradient(180deg, #343a52, #1f2336); }
@@ -156,14 +141,7 @@
     .st-seg.on{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
     .st-ctl input[type=range]{width:7rem;accent-color:var(--ink)}
     .st-ctl input[type=color]{width:26px;height:22px;padding:0;border:none;background:none;cursor:pointer}
-      #start-page .wh { stroke: rgba(224,242,254,.16); stroke-width: 3px; transform: translate(-6px,-6px); }
-    @keyframes sfloat { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-14px) rotate(var(--r,0deg)); } }
-    #start-page .sfit { animation: sfloat 9s ease-in-out infinite; }
-    #start-page .cat { transition: transform .25s ease, background .25s ease; }
-    #start-page .cat:hover { transform: translateY(-4px); background: rgba(255,255,255,.14); }
-    #start-page .pipe-rule::after { content:''; position:absolute; inset:0; border-radius:9999px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent); background-size:40% 100%; background-repeat:no-repeat; animation: pshine 3.2s ease-in-out infinite; }
-    @keyframes pshine { from { background-position: -50% 0; } to { background-position: 150% 0; } }
-</style>
+  </style>
 </head>
 <body class="h-full w-full relative">
 
@@ -191,7 +169,6 @@
 
     <!-- Right Controls Action Group -->
     <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
-      <button id="mp-btn" class="glass-button p-2 sm:p-2.5 rounded-xl text-neutral-600 hover:text-neutral-900" title="Multiplayer + voice chat" aria-label="Multiplayer and voice chat"><i class="fa-solid fa-users w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center"></i></button>
       <!-- Narration Audio Toggle -->
       <button id="narration-btn" class="glass-button p-2 sm:p-2.5 rounded-xl text-neutral-600 hover:text-neutral-900" title="Toggle Audio Narration" aria-label="Toggle Audio Narration">
         <i id="narration-icon" class="fa-solid fa-volume-xmark w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center text-neutral-400"></i>
@@ -233,62 +210,6 @@
   </div>
 
   <!-- Welcome / Level Start Overlay -->
-  <!-- STEP 1: branded start page (separate full screen). Pressing Enter reveals the walkthrough card below (STEP 2), exactly as before. -->
-  <div id="start-page" class="fixed inset-0 z-[55] overflow-y-auto transition-opacity duration-500 text-white" style="background:linear-gradient(135deg,#06101c 0%,#0a2a45 50%,#06404a 100%)">
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-      <symbol id="ic-elbow" viewBox="0 0 48 48"><path d="M13 8v17a10 10 0 0 0 10 10h17" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><rect x="7" y="4" width="12" height="7" rx="2" fill="currentColor"/><rect x="36" y="29" width="7" height="12" rx="2" fill="currentColor"/></symbol>
-      <symbol id="ic-tee" viewBox="0 0 48 48"><path d="M6 16h36M24 16v26" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/><rect x="3" y="10" width="7" height="12" rx="2" fill="currentColor"/><rect x="38" y="10" width="7" height="12" rx="2" fill="currentColor"/><rect x="18" y="38" width="12" height="7" rx="2" fill="currentColor"/></symbol>
-      <symbol id="ic-valve" viewBox="0 0 48 48"><path d="M4 30h40" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/><circle cx="24" cy="30" r="11" fill="currentColor"/><path d="M24 19V11" stroke="currentColor" stroke-width="4"/><rect x="9" y="5" width="30" height="6" rx="3" fill="currentColor"/></symbol>
-      <symbol id="ic-coupling" viewBox="0 0 48 48"><path d="M3 24h42" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/><rect x="14" y="12" width="20" height="24" rx="4" fill="currentColor"/><path d="M19 12v24M29 12v24" stroke="#0a2a45" stroke-width="2"/></symbol>
-      <symbol id="ic-clamp" viewBox="0 0 48 48"><circle cx="24" cy="28" r="14" fill="none" stroke="currentColor" stroke-width="6"/><path d="M12 14h24" stroke="currentColor" stroke-width="4"/><rect x="18" y="5" width="12" height="10" rx="2" fill="currentColor"/></symbol>
-      <symbol id="ic-pipe" viewBox="0 0 48 48"><rect x="3" y="14" width="42" height="20" rx="4" fill="currentColor"/><ellipse cx="42" cy="24" rx="3.5" ry="10" fill="none" stroke="#0a2a45" stroke-width="2"/></symbol>
-    </defs></svg>
-
-    <!-- backdrop: pipe network with flowing water, floating fittings -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <div class="orb absolute -top-32 -left-24 w-[34rem] h-[34rem] rounded-full" style="background:radial-gradient(circle,rgba(56,189,248,.3),transparent 65%);filter:blur(30px)"></div>
-      <div class="orb absolute -bottom-40 -right-24 w-[38rem] h-[38rem] rounded-full" style="background:radial-gradient(circle,rgba(52,211,153,.22),transparent 65%);filter:blur(30px);animation-delay:-6s"></div>
-      <svg class="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <defs>
-          <linearGradient id="wg" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#34d399"/></linearGradient>
-          <path id="pp1" d="M-40 650H260Q300 650 300 610V440Q300 400 340 400H640Q680 400 680 360V160Q680 120 720 120H1240"/>
-          <path id="pp2" d="M1240 710H990Q950 710 950 670V540Q950 500 910 500H770"/>
-          <path id="pp3" d="M-40 150H170Q210 150 210 190V290"/>
-        </defs>
-        <use href="#pp1" class="wp"/><use href="#pp2" class="wp"/><use href="#pp3" class="wp"/>
-        <use href="#pp1" class="wh"/><use href="#pp2" class="wh"/><use href="#pp3" class="wh"/>
-        <path class="wcp" d="M120 650h14M300 520v14M500 400h14M680 250v14M1000 120h14M950 610v14M1100 710h14M210 230v14"/>
-        <use href="#pp1" class="wf"/><use href="#pp2" class="wf"/><use href="#pp3" class="wf"/>
-      </svg>
-      <svg class="sfit absolute w-28 h-28 sm:w-40 sm:h-40 text-sky-200" style="left:4%;top:56%;opacity:.07;--r:-12deg"><use href="#ic-valve"/></svg>
-      <svg class="sfit absolute w-24 h-24 sm:w-36 sm:h-36 text-emerald-200" style="right:5%;top:12%;opacity:.07;--r:14deg;animation-delay:-3s"><use href="#ic-elbow"/></svg>
-      <svg class="sfit absolute w-20 h-20 sm:w-32 sm:h-32 text-sky-200" style="right:12%;bottom:8%;opacity:.07;--r:8deg;animation-delay:-5s"><use href="#ic-tee"/></svg>
-      <svg class="sfit absolute w-20 h-20 sm:w-28 sm:h-28 text-emerald-200" style="left:10%;top:8%;opacity:.07;--r:-6deg;animation-delay:-7s"><use href="#ic-coupling"/></svg>
-    </div>
-
-    <div class="relative min-h-full flex items-center justify-center px-5 py-10">
-      <div class="welcome-content w-full max-w-3xl text-center flex flex-col items-center">
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 shadow-lg" style="background:linear-gradient(135deg,#38bdf8,#34d399);box-shadow:0 10px 40px rgba(56,189,248,.35)"><svg class="w-9 h-9 text-slate-900"><use href="#ic-elbow"/></svg></div>
-        <p id="sp-eyebrow" class="text-xs uppercase tracking-[0.35em] text-sky-200/80 mb-2">Welcome to</p>
-        <h2 id="sp-title" class="gt text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">Architectural Walkthrough</h2>
-        <div class="pipe-rule relative w-56 sm:w-72 h-2.5 rounded-full my-4 overflow-hidden" style="background:linear-gradient(180deg,#bae6fd,#38bdf8 55%,#0369a1)"></div>
-        <p id="sp-tag" class="hidden text-base sm:text-lg font-medium text-sky-100 mb-3"></p>
-        <p id="sp-msg" class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl mb-6">Explore the spatial layout in real-time.</p>
-        <div id="sp-cats" class="hidden grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 w-full max-w-xl mb-5"></div>
-        <div id="sp-chips" class="hidden flex-wrap justify-center gap-2 mb-7"></div>
-
-        <button id="sp-enter" disabled class="opacity-80 relative overflow-hidden px-8 sm:px-10 py-3.5 sm:py-4 bg-white text-slate-900 font-semibold text-sm sm:text-base rounded-full transition flex items-center justify-center gap-2.5 cursor-pointer shadow-xl hover:scale-[1.03] active:scale-100" aria-label="Enter the showroom">
-          <span id="sp-cta">Loading showroom…</span><i class="fa-solid fa-arrow-right text-sm"></i>
-          <span id="sp-progress" class="absolute left-0 bottom-0 h-1 transition-all duration-200" style="width:0;background:linear-gradient(90deg,#38bdf8,#34d399)"></span>
-        </button>
-        <button id="sp-settings-btn" class="mt-4 text-xs text-slate-400 hover:text-white py-1"><i class="fa-solid fa-sliders mr-1"></i>Settings &amp; themes</button>
-        <p id="sp-contact" class="hidden mt-2 text-xs text-slate-400 leading-relaxed"></p>
-        <p id="sp-footer" class="mt-8 text-[11px] tracking-wide text-slate-500">Developed by Razel Tech</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2: the original walkthrough card over the live scene (restored unchanged) -->
   <div id="welcome-overlay" class="fixed inset-0 z-40 bg-neutral-950/40 flex items-center justify-center p-3 sm:p-6 overflow-y-auto transition-opacity duration-200">
     <div class="bg-white text-neutral-900 border border-neutral-200 rounded-2xl p-5 sm:p-7 max-w-md w-full my-auto shadow-xl relative max-h-[calc(100dvh-1.5rem)] flex flex-col overflow-y-auto">
       <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-800 text-sm mx-auto mb-3">
@@ -351,7 +272,7 @@
       <div id="slideshow" class="relative h-44 bg-neutral-200 overflow-hidden hidden">
         <div id="slides" class="flex h-full transition-transform duration-300 ease-out"></div>
         <canvas id="preview-canvas" class="absolute inset-0 w-full h-full cursor-grab touch-none"></canvas>
-        <span id="preview-hint" class="absolute bottom-2 left-2 text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none"><i class="fa-solid fa-rotate mr-1"></i>3D preview · drag to rotate · scroll to zoom</span>
+        <span id="preview-hint" class="absolute bottom-2 left-2 text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none"><i class="fa-solid fa-rotate mr-1"></i>3D preview · drag to rotate</span>
         <button id="slide-prev" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-neutral-800 text-xs shadow" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
         <button id="slide-next" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-neutral-800 text-xs shadow" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
         <div id="slide-dots" class="absolute bottom-2 inset-x-0 flex justify-center items-center gap-1.5"></div>
@@ -463,30 +384,7 @@
   </aside>
 
   <!-- Application Engine Script -->
-  <div id="mp-modal" class="hidden fixed inset-0 z-[70] items-center justify-center p-4" style="background:rgba(0,0,0,.45)">
-  <div class="w-full max-w-sm rounded-2xl p-5 space-y-3 shadow-2xl" style="background:var(--surface);color:var(--text);border:1px solid var(--border)">
-    <div class="flex items-center justify-between"><h3 class="font-semibold text-sm"><i class="fa-solid fa-users mr-1.5"></i>Multiplayer &amp; voice chat</h3><button id="mp-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
-    <div id="mp-setup" class="space-y-3">
-      <input id="mp-name" maxlength="16" placeholder="Your name" class="st-select w-full" style="max-width:none;font-size:13px;padding:.5rem .6rem">
-      <div class="flex items-center gap-2 text-xs"><span class="opacity-70">Avatar colour</span><div id="mp-colors" class="flex gap-1.5"></div></div>
-      <div class="flex items-center gap-2 text-xs"><span class="opacity-70">Character</span><div id="mp-style" class="flex gap-1.5"><button data-s="classic" class="px-2.5 py-1 rounded-lg sel-chip"><i class="fa-solid fa-user mr-1"></i>Classic</button><button data-s="robot" class="px-2.5 py-1 rounded-lg sel-chip"><i class="fa-solid fa-robot mr-1"></i>Cute robot</button></div></div>
-      <label class="flex items-center gap-2 text-xs"><input type="checkbox" id="mp-mic" checked> Use microphone (voice chat)</label>
-      <button id="mp-create" class="w-full py-2 rounded-lg text-xs font-medium sel-chip">Create a room</button>
-      <div class="flex gap-2"><input id="mp-code" maxlength="5" placeholder="ROOM CODE" class="st-select flex-1" style="max-width:none;text-transform:uppercase;letter-spacing:.15em;font-size:13px;padding:.5rem .6rem"><button id="mp-join" class="px-4 rounded-lg text-xs font-medium sel-chip">Join</button></div>
-      <p class="text-[11px] opacity-60">Friends hear you louder when you stand close. Needs HTTPS and microphone permission.</p>
-    </div>
-    <div id="mp-live" class="hidden space-y-3">
-      <div class="text-center"><div class="text-[11px] opacity-60">Room code</div><div id="mp-room" class="text-2xl font-bold tracking-[.25em]"></div></div>
-      <button id="mp-copy" class="w-full py-2 rounded-lg text-xs font-medium sel-chip"><i class="fa-solid fa-link mr-1"></i><span>Copy invite link</span></button>
-      <ul id="mp-people" class="text-xs space-y-1"></ul>
-      <div class="flex gap-2"><button id="mp-mute" class="flex-1 py-2 rounded-lg text-xs font-medium sel-chip">Mute mic</button><button id="mp-leave" class="flex-1 py-2 rounded-lg text-xs font-medium sel-chip">Leave room</button></div>
-    </div>
-    <p id="mp-err" class="hidden text-xs" style="color:#ef4444"></p>
-  </div>
-</div>
-<div id="mp-hud" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium shadow-lg" style="background:var(--ink);color:var(--on-ink)"><span id="mp-hud-text"></span><button id="mp-hud-mute" aria-label="Mute microphone"><i class="fa-solid fa-microphone"></i></button></div>
-<button id="stand-btn" class="hidden fixed bottom-16 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full text-xs font-medium shadow-lg sel-chip"><i class="fa-solid fa-person-walking mr-1"></i>Stand up (or press W A S D)</button>
-<script>
+  <script>
   /* ==========================================================================
      1. CONFIGURATION & CONSTANTS
      ========================================================================== */
@@ -526,7 +424,7 @@
   const DEFAULT_SETTINGS = {
     theme:'minimal', outlineColor:'#ff4d2e', selColor:'#ff4d2e', selStrength:0.3,
     reticleShape:'dot', reticleColor:'#171717', reticleSize:6,
-    lightPreset:'daylight', exposure:1.0, reflections:0.6, spotlight:true, emission:1, rotateSelected:false, avatarStyle:'classic', ttsVoice:'google-hindi', ttsRate:1, ttsPitch:1, glbLights:true, glbLightScale:1, shadows:true,
+    lightPreset:'daylight', exposure:1.0, reflections:0.6, spotlight:true, emission:1, rotateSelected:false, ttsVoice:'google-hindi', ttsRate:1, ttsPitch:1, glbLights:true, glbLightScale:1, shadows:true,
     fov:65, walkSpeed:3.2, look:1, headBob:true, quality:'high'
   };
   const INDIAN_LANG = /^(en-in|hi|te|ta|kn|ml|bn|mr|gu|pa|or|as|ur)(-|$)/i;
@@ -561,9 +459,7 @@
       { k:'ttsVoice', t:'voice', l:'Voice' },
       { k:'ttsRate', t:'range', l:'Speed', min:0.7, max:1.3, step:0.05 },
       { k:'ttsPitch', t:'range', l:'Pitch', min:0.8, max:1.3, step:0.05 },
-      { t:'btn', l:'Listen to sample' } ]},
-    { sec:'Multiplayer character', items:[
-      { k:'avatarStyle', t:'seg', l:'Character', o:[['classic','Classic'],['robot','Cute robot']] } ]}
+      { t:'btn', l:'Listen to sample' } ]}
   ];
 
   const AppState = {
@@ -787,248 +683,6 @@
   /* ==========================================================================
      5. PRODUCTION WALKTHROUGH APPLICATION
      ========================================================================== */
-  /* ==========================================================================
-     Avatars + multiplayer voice chat (free WebRTC through PeerJS)
-     - Room code = a peer id. Everyone connects to everyone (mesh, fine up to ~6 people).
-     - Data channel: position, doors, names. Media: microphone, played through a 3D panner
-       so voices get quieter and directional with distance.
-     ========================================================================== */
-  const PEERJS_SRC = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
-  const MP_COLORS = [0x38bdf8, 0xf472b6, 0xfbbf24, 0x34d399, 0xa78bfa, 0xfb7185];
-  const randCode = () => Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
-
-  class Avatar {
-    /* style: 'classic' = the original human-style avatar (kept untouched below), 'robot' = cute robot (buildRobot).
-       Each player chooses theirs in Settings -> Multiplayer character; others see it. */
-    constructor(name, color, style) {
-      const g = this.group = new THREE.Group();
-      const mat = (c, r) => new THREE.MeshStandardMaterial({ color: lin(c), roughness: r || 0.55, metalness: 0.05 });
-      this.style = style === 'robot' ? 'robot' : 'classic'; this.hipY = 0.8;
-      if (this.style === 'robot') {
-        this.buildRobot(g, mat, color);
-        this.tag = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true })); this.tag.position.y = 1.98; this.tag.scale.set(0.8, 0.2, 1); g.add(this.tag);
-        g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
-        this.phase = 0; this.talk = 0; this.tgt = null; this.setStyle(name, color);
-        return;
-      }
-      this.body = mat(color); const skin = mat(0xe0b08c, 0.6), dark = mat(0x23262e, 0.7);
-      const prof = [[0.001, 0], [0.2, 0.02], [0.23, 0.25], [0.21, 0.5], [0.15, 0.62], [0.06, 0.68], [0.001, 0.7]].map(([x, y]) => new THREE.Vector2(x, y));
-      const torso = new THREE.Mesh(new THREE.LatheGeometry(prof, 20), this.body); torso.position.y = 0.72;
-      this.legs = [-1, 1].map((k) => { const l = new THREE.Group(); l.position.set(k * 0.09, 0.8, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.78, 12), dark); m.position.y = -0.39; l.add(m); g.add(l); return l; });
-      this.arms = [-1, 1].map((k) => { const a = new THREE.Group(); a.position.set(k * 0.27, 1.34, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.5, 10), this.body), h = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), skin); m.position.y = -0.25; h.position.y = -0.52; a.add(m, h); g.add(a); return a; });
-      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.1, 10), skin); neck.position.y = 1.43;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.135, 24, 18), skin); head.position.y = 1.56;
-      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.142, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.55), dark); hair.position.y = 1.57; hair.rotation.x = 0.3;
-      const eyeG = new THREE.SphereGeometry(0.014, 8, 6); [-1, 1].forEach((k) => { const e = new THREE.Mesh(eyeG, dark); e.position.set(k * 0.05, 1.575, -0.125); g.add(e); });
-      this.ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.37, 40), new THREE.MeshBasicMaterial({ color: lin(color), transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-      this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.02;
-      g.add(torso, neck, head, hair, this.ring);
-      this.tag = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true })); this.tag.position.y = 1.82; this.tag.scale.set(0.8, 0.2, 1); g.add(this.tag);
-      g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
-      this.phase = 0; this.talk = 0; this.tgt = null; this.setStyle(name, color);
-    }
-/* Cute robot: bean-shaped shell, small dome head with a glowing visor, stubby legs and round mitten hands. */
-    buildRobot(g, mat, color) {
-      this.hipY = 0.5;
-      const shell = this.body = mat(color, 0.35), white = mat(0xf4f7fb, 0.4), dark = mat(0x1d2433, 0.5);
-      const glow = this.glow = new THREE.MeshStandardMaterial({ color: 0x0b1220, emissive: lin(0x7dd3fc), emissiveIntensity: 0.9, roughness: 0.3 });
-      const upper = this.upper = new THREE.Group(); g.add(upper);
-      const prof = [[0.001, 0], [0.2, 0.02], [0.3, 0.2], [0.33, 0.42], [0.3, 0.62], [0.2, 0.76], [0.001, 0.8]].map(([x, y]) => new THREE.Vector2(x, y));
-      const torso = new THREE.Mesh(new THREE.LatheGeometry(prof, 28), shell); torso.position.y = 0.46;
-      const belly = new THREE.Mesh(new THREE.CircleGeometry(0.16, 24), white); belly.position.set(0, 0.84, -0.322); belly.rotation.y = Math.PI;
-      const light = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 10), glow); light.position.set(0, 0.84, -0.33); light.scale.z = 0.4;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 18), white); head.position.y = 1.4;
-      const visor = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14), dark); visor.position.set(0, 1.4, -0.115); visor.scale.set(1, 0.62, 0.45);
-      this.eyes = [-1, 1].map((k) => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 8), glow); e.position.set(k * 0.055, 1.41, -0.172); return e; });
-      const ears = [-1, 1].map((k) => { const e = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 16), shell); e.rotation.z = Math.PI / 2; e.position.set(k * 0.175, 1.4, 0); return e; });
-      const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.12, 8), dark); stick.position.y = 1.62;
-      this.ant = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), glow); this.ant.position.y = 1.7;
-      upper.add(torso, belly, light, head, visor, ...this.eyes, ...ears, stick, this.ant);
-      this.arms = [-1, 1].map((k) => { const a = new THREE.Group(); a.position.set(k * 0.37, 1.06, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.26, 12), shell), h = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 10), white); m.position.y = -0.13; h.position.y = -0.3; a.add(m, h); upper.add(a); return a; });
-      this.legs = [-1, 1].map((k) => { const l = new THREE.Group(); l.position.set(k * 0.13, 0.5, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.055, 0.36, 12), dark), f = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 10), shell); m.position.y = -0.18; f.position.set(0, -0.44, -0.03); f.scale.set(1, 0.6, 1.45); l.add(m, f); g.add(l); return l; });
-      this.ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.37, 40), new THREE.MeshBasicMaterial({ color: lin(color), transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-      this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.02; g.add(this.ring);
-    }
-    setStyle(name, color) {
-      this.body.color.copy(lin(color)); this.ring.material.color.copy(lin(color));
-      const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d');
-      x.fillStyle = 'rgba(20,22,28,.8)'; x.beginPath(); (x.roundRect || x.rect).call(x, 4, 8, 248, 48, 24); x.fill();
-      x.fillStyle = '#fff'; x.font = 'bold 28px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(name, 128, 33, 230);
-      const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
-      if (this.tag.material.map) this.tag.material.map.dispose(); this.tag.material.map = t; this.tag.material.needsUpdate = true;
-    }
-    update(dt) {
-      const t = this.tgt, g = this.group; if (!t) return;
-      const ty = t.y + (t.s ? 0.8 - this.hipY : 0);   // seated pose: align the hip with the seat for either character
-      if (!this.init || Math.hypot(t.x - g.position.x, t.z - g.position.z) > 6) { g.position.set(t.x, ty, t.z); g.rotation.y = t.r; this.init = true; }
-      const k = 1 - Math.exp(-12 * dt), px = g.position.x, pz = g.position.z;
-      g.position.x += (t.x - px) * k; g.position.z += (t.z - pz) * k; g.position.y += (ty - g.position.y) * k;
-      let dr = t.r - g.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); g.rotation.y += dr * k;
-      const spd = Math.hypot(g.position.x - px, g.position.z - pz) / Math.max(dt, 1e-3); this.phase += spd * dt * 3.2;
-      const sw = Math.min(spd / 1.5, 1) * 0.7 * Math.sin(this.phase);
-      if (t.s) { this.legs.forEach((l) => { l.rotation.x = 1.45; }); this.arms.forEach((a) => { a.rotation.x = 0.6; }); }
-      else { this.legs[0].rotation.x = sw; this.legs[1].rotation.x = -sw; this.arms[0].rotation.x = -sw * 0.8; this.arms[1].rotation.x = sw * 0.8; }
-      this.ring.material.opacity = 0.15 + this.talk * 0.85; this.ring.scale.setScalar(1 + this.talk * 0.25);
-      if (this.style === 'robot') {   // blink, glow when talking, tiny walking bounce
-        const tt = performance.now() / 1000, bl = (tt % 4.2) < 0.12 ? 0.1 : 1;
-        this.eyes.forEach((e) => { e.scale.y = bl; }); this.glow.emissiveIntensity = 0.9 + this.talk * 2.5; this.ant.scale.setScalar(1 + this.talk * 0.7);
-        this.upper.position.y = t.s ? 0 : Math.abs(Math.sin(this.phase)) * 0.03 * Math.min(spd / 1.5, 1);
-      }
-    }
-    dispose() { this.group.parent && this.group.parent.remove(this.group); this.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); }
-  }
-
-  class Multiplayer {
-    constructor(app) { this.app = app; this.peers = new Map(); this.live = false; this.me = { name: 'Guest', color: MP_COLORS[0] }; this.sendT = 0; this.muted = false; }
-    $(id) { return document.getElementById(id); }
-
-    bindUI() {
-      const $ = (i) => this.$(i), q = new URLSearchParams(location.search);
-      MP_COLORS.forEach((c, i) => { const b = document.createElement('button'); b.className = 'w-6 h-6 rounded-full'; b.style.background = '#' + c.toString(16).padStart(6, '0'); b.setAttribute('aria-label', 'Colour ' + (i + 1)); b.onclick = () => { this.me.color = c; [...$('mp-colors').children].forEach((x, j) => { x.style.outline = j === i ? '2px solid var(--ink)' : 'none'; x.style.outlineOffset = '2px'; }); }; $('mp-colors').appendChild(b); });
-      $('mp-colors').children[0].click();
-      const paint = () => $('mp-style').querySelectorAll('button').forEach((b) => { b.style.outline = b.dataset.s === (this.app.settings.avatarStyle || 'classic') ? '2px solid var(--ink)' : 'none'; b.style.outlineOffset = '1px'; });
-      $('mp-style').querySelectorAll('button').forEach((b) => { b.onclick = () => { this.app.settings.avatarStyle = b.dataset.s; this.app.saveSettings(); this.app.applySettings(); paint(); }; });
-      this.paintStyle = paint; paint();
-      try { $('mp-name').value = localStorage.getItem('iwt.name') || ''; } catch (e) {}
-      const open = (v) => { $('mp-modal').classList.toggle('hidden', !v); $('mp-modal').classList.toggle('flex', v); if (v && this.app.pointerControls.isLocked) this.app.pointerControls.unlock(); };
-      $('mp-btn').onclick = () => open(true); $('mp-close').onclick = () => open(false); this.open = open;
-      const go = (mode) => { const code = $('mp-code').value.trim().toUpperCase(); if (mode === 'join' && code.length < 5) return this.err('Enter the 5-letter room code.'); this.start(mode, code); };
-      $('mp-create').onclick = () => go('host'); $('mp-join').onclick = () => go('join');
-      $('mp-leave').onclick = () => this.leave();
-      const mute = () => { this.muted = !this.muted; if (this.out) this.out.getAudioTracks().forEach((t) => { t.enabled = !this.muted; }); $('mp-mute').textContent = this.muted ? 'Unmute mic' : 'Mute mic'; $('mp-hud-mute').firstElementChild.className = 'fa-solid ' + (this.muted ? 'fa-microphone-slash' : 'fa-microphone'); };
-      $('mp-mute').onclick = mute; $('mp-hud-mute').onclick = mute;
-      $('mp-copy').onclick = () => { const u = new URL(location.href); u.searchParams.set('room', this.code); navigator.clipboard && navigator.clipboard.writeText(u.href); $('mp-copy').lastElementChild.textContent = 'Copied!'; setTimeout(() => { $('mp-copy').lastElementChild.textContent = 'Copy invite link'; }, 1500); };
-      if (q.get('room')) { $('mp-code').value = q.get('room').slice(0, 5); open(true); }
-    }
-    /* keep the character choice in sync (Settings panel <-> multiplayer window) and tell everyone when it changes */
-    syncStyle() {
-      const st = this.app.settings.avatarStyle === 'robot' ? 'robot' : 'classic';
-      if (this.paintStyle) this.paintStyle();
-      if (this.me.style !== st) { this.me.style = st; if (this.live) this.send({ t: 'hello', name: this.me.name, color: this.me.color, style: st }); }
-    }
-    err(m) { const e = this.$('mp-err'); e.textContent = m || ''; e.classList.toggle('hidden', !m); }
-
-    loadLib() { return window.Peer ? Promise.resolve() : new Promise((res, rej) => { const s = document.createElement('script'); s.src = window.RZL_PEERJS_SRC || PEERJS_SRC; s.onload = res; s.onerror = () => rej(new Error('Could not load the voice-chat library. Check your internet.')); document.head.appendChild(s); }); }
-    peerOpts() {
-      const c = this.app.rtcCfg || {}, q = new URLSearchParams(location.search), pc = Object.assign({}, c.peer);
-      if (q.get('peerHost')) Object.assign(pc, { host: q.get('peerHost'), port: +q.get('peerPort') || 9000, path: q.get('peerPath') || '/', secure: q.get('peerSecure') === '1' });
-      return Object.assign({ config: { iceServers: c.iceServers || [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] } }, pc);
-    }
-
-    async start(mode, code) {
-      const $ = (i) => this.$(i); this.err('');
-      this.me.style = this.app.settings.avatarStyle === 'robot' ? 'robot' : 'classic';
-      this.me.name = ($('mp-name').value.trim() || 'Guest').slice(0, 16); try { localStorage.setItem('iwt.name', this.me.name); } catch (e) {}
-      $('mp-create').disabled = $('mp-join').disabled = true;
-      try {
-        await this.loadLib();
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.resume) this.ctx.resume().catch(() => {});   // never block joining on this
-        this.stream = null;
-        if ($('mp-mic').checked) { try { this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); } catch (e) { this.err('Microphone blocked: you can listen but others will not hear you.'); } }
-        this.out = this.stream || new MediaStream(); this.muted = false;
-        this.isHost = mode === 'host'; this.code = this.isHost ? randCode() : code;
-        await new Promise((res, rej) => {
-          const open = (id, n) => {
-            const p = new Peer(id, this.peerOpts());
-            p.on('open', () => { this.peer = p; res(); });
-            p.on('error', (e) => { if (!this.peer && this.isHost && e.type === 'unavailable-id' && n < 5) { p.destroy(); this.code = randCode(); open('rzl3d-' + this.code, n + 1); } else if (!this.peer) rej(e); else if (e.type === 'peer-unavailable') this.fail('Room not found. Check the code.'); });
-          };
-          open(this.isHost ? 'rzl3d-' + this.code : undefined, 0);
-        });
-        const p = this.peer;
-        p.on('connection', (c) => this.onConn(c, false));
-        p.on('call', (call) => { call.answer(this.out); this.onCall(call); });
-        p.on('disconnected', () => { try { p.reconnect(); } catch (e) {} });
-        if (!this.isHost) this.onConn(p.connect('rzl3d-' + this.code, { reliable: true }), true);
-        this.live = true; $('mp-setup').classList.add('hidden'); $('mp-live').classList.remove('hidden'); $('mp-room').textContent = this.code;
-        $('mp-hud').classList.remove('hidden'); $('mp-hud').classList.add('flex'); this.refreshUI();
-      } catch (e) { this.fail((e && e.message) || 'Could not connect.'); }
-      $('mp-create').disabled = $('mp-join').disabled = false;
-    }
-    fail(m) { this.leave(true); this.err(m); }
-
-    onConn(c, initiator) {
-      c.on('open', () => {
-        const P = this.addPeer(c.peer); P.conn = c;
-        c.send({ t: 'hello', name: this.me.name, color: this.me.color, style: this.me.style });
-        if (initiator) this.onCall(this.peer.call(c.peer, this.out));
-        else if (this.isHost) {
-          c.send({ t: 'peers', list: [...this.peers.keys()].filter((id) => id !== c.peer) });
-          const lv = this.app.currentLevel; if (lv && lv.interactives) c.send({ t: 'doors', o: lv.interactives.map((x) => x.target) });
-        }
-      });
-      c.on('data', (d) => this.onData(c.peer, d));
-      c.on('close', () => this.removePeer(c.peer));
-    }
-    onCall(call) { call.on('stream', (st) => this.attach(call.peer, st)); }
-    addPeer(id) {
-      let P = this.peers.get(id);
-      if (!P) { P = { id, name: 'Guest', color: MP_COLORS[0], av: new Avatar('Guest', MP_COLORS[0]) }; this.app.scene.add(P.av.group); this.peers.set(id, P); this.refreshUI(); }
-      return P;
-    }
-    removePeer(id) { const P = this.peers.get(id); if (!P) return; P.av.dispose(); try { P.pan && P.pan.disconnect(); } catch (e) {} this.peers.delete(id); this.refreshUI(); }
-
-    attach(id, stream) {
-      const P = this.addPeer(id); if (P.stream || !stream.getAudioTracks().length) return; P.stream = stream;
-      const a = new Audio(); a.srcObject = stream; a.muted = true; a.play().catch(() => {});   // Chrome only delivers the stream to WebAudio if an element is attached
-      try {
-        const src = this.ctx.createMediaStreamSource(stream), pan = this.ctx.createPanner(), an = this.ctx.createAnalyser();
-        pan.panningModel = 'HRTF'; pan.distanceModel = 'inverse'; pan.refDistance = 1.6; pan.rolloffFactor = 1.5; pan.maxDistance = 30; an.fftSize = 256;
-        src.connect(an); src.connect(pan); pan.connect(this.ctx.destination); P.pan = pan; P.an = an; P.buf = new Uint8Array(an.fftSize);
-      } catch (e) { console.warn('Voice routing failed', e); }
-    }
-
-    onData(id, d) {
-      const P = this.addPeer(id), app = this.app, lv = app.currentLevel;
-      if (!d || typeof d !== 'object') return;
-      if (d.t === 'hello') { P.name = String(d.name || 'Guest').slice(0, 16); P.color = Number.isInteger(d.color) && d.color >= 0 && d.color <= 0xffffff ? d.color : MP_COLORS[0]; const sty = d.style === 'robot' ? 'robot' : 'classic';
-        if (sty !== P.av.style) { const old = P.av, nv = new Avatar(P.name, P.color, sty); nv.tgt = old.tgt; this.app.scene.add(nv.group); old.dispose(); P.av = nv; }
-        else P.av.setStyle(P.name, P.color);
-        this.refreshUI(); }
-      else if (d.t === 'peers' && Array.isArray(d.list)) d.list.slice(0, 8).forEach((pid) => { if (typeof pid === 'string' && !this.peers.has(pid) && pid !== this.peer.id) this.onConn(this.peer.connect(pid, { reliable: true }), true); });
-      else if (d.t === 'pos' && [d.x, d.y, d.z, d.r].every(Number.isFinite)) P.av.tgt = { x: d.x, y: d.y, z: d.z, r: d.r, s: d.s ? 1 : 0 };
-      else if (d.t === 'door' && lv) app.setInteractive(d.i, !!d.open, true);
-      else if (d.t === 'doors' && lv && Array.isArray(d.o)) d.o.forEach((v, i) => app.setInteractive(i, !!v, true));
-    }
-    send(m) { this.peers.forEach((P) => { if (P.conn && P.conn.open) P.conn.send(m); }); }
-
-    refreshUI() {
-      const ul = this.$('mp-people'); if (!ul) return; ul.textContent = '';
-      [[this.me.name + ' (you)', this.me.color], ...[...this.peers.values()].map((P) => [P.name, P.color])].forEach(([n, c]) => { const li = document.createElement('li'); li.className = 'flex items-center gap-2'; const d = document.createElement('span'); d.className = 'w-2.5 h-2.5 rounded-full'; d.style.background = '#' + c.toString(16).padStart(6, '0'); const t = document.createElement('span'); t.textContent = n; li.append(d, t); ul.appendChild(li); });
-      this.$('mp-hud-text').textContent = 'Room ' + (this.code || '') + ' · ' + (this.peers.size + 1) + ' online';
-    }
-
-    update(dt) {
-      if (!this.live) return;
-      const app = this.app, cam = app.camera, lv = app.currentLevel;
-      this.sendT += dt;
-      if (this.sendT > 0.09 && lv) {
-        this.sendT = 0; const st = app.seated;
-        this.send({ t: 'pos', x: cam.position.x, y: st ? st.baseY : cam.position.y - lv.eyeHeight, z: cam.position.z, r: app.cameraYaw || 0, s: st ? 1 : 0 });
-      }
-      const L = this.ctx.listener, f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
-      if (L.positionX) { L.positionX.value = cam.position.x; L.positionY.value = cam.position.y; L.positionZ.value = cam.position.z; L.forwardX.value = f.x; L.forwardY.value = f.y; L.forwardZ.value = f.z; L.upX.value = 0; L.upY.value = 1; L.upZ.value = 0; }
-      else if (L.setPosition) { L.setPosition(cam.position.x, cam.position.y, cam.position.z); L.setOrientation(f.x, f.y, f.z, 0, 1, 0); }
-      this.peers.forEach((P) => {
-        P.av.update(dt);
-        if (P.pan) {
-          const h = P.av.group.position, v = P.pan;
-          if (v.positionX) { v.positionX.value = h.x; v.positionY.value = h.y + 1.5; v.positionZ.value = h.z; } else v.setPosition(h.x, h.y + 1.5, h.z);
-          P.an.getByteTimeDomainData(P.buf); let m = 0; for (let i = 0; i < P.buf.length; i++) m = Math.max(m, Math.abs(P.buf[i] - 128)); P.av.talk += (Math.min(1, m / 40) - P.av.talk) * 0.3;
-        }
-      });
-    }
-
-    leave(silent) {
-      this.live = false; this.peers.forEach((P) => { try { P.conn && P.conn.close(); } catch (e) {} P.av.dispose(); }); this.peers.clear();
-      try { this.peer && this.peer.destroy(); } catch (e) {} this.peer = null;
-      if (this.stream) this.stream.getTracks().forEach((t) => t.stop()); this.stream = this.out = null;
-      try { this.ctx && this.ctx.close(); } catch (e) {} this.ctx = null;
-      this.$('mp-hud').classList.add('hidden'); this.$('mp-hud').classList.remove('flex'); this.$('mp-live').classList.add('hidden'); this.$('mp-setup').classList.remove('hidden');
-      if (!silent) this.err('');
-    }
-  }
-
   class WalkthroughApp {
     constructor() {
       this.currentState = AppState.WELCOME;
@@ -1510,10 +1164,6 @@
         box.max.z += APP_CONFIG.playerRadius;
         level.colliders.push(box);
       });
-      (level.autoColliders || []).forEach(({ o, pad }) => {
-        const b = new THREE.Box3().setFromObject(o), r = APP_CONFIG.playerRadius * pad;
-        b.min.x -= r; b.max.x += r; b.min.z -= r; b.max.z += r; level.colliders.push(b);
-      });
       (level.extraColliders || []).forEach((obj) => {
         const b = new THREE.Box3().setFromObject(obj);
         b.min.x -= APP_CONFIG.playerRadius; b.max.x += APP_CONFIG.playerRadius;
@@ -1629,7 +1279,7 @@
       if (res.body && total) {
         wrap.classList.remove('hidden');
         const rd = res.body.getReader(), parts = []; let got = 0;
-        for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; this.welcomeProgress(got / total); bar.style.width = Math.min(100, got / total * 100) + '%'; }
+        for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; bar.style.width = Math.min(100, got / total * 100) + '%'; }
         const u = new Uint8Array(got); let o = 0; parts.forEach((p) => { u.set(p, o); o += p.length; }); buf = u.buffer;
       } else buf = await res.arrayBuffer();
       wrap.classList.add('hidden');
@@ -1787,9 +1437,6 @@
 
       if (cfg && cfg.voiceLang) this.audioManager.defaultLang = cfg.voiceLang;
       this.bindProductAnimations(level);
-      this.applyWelcome(cfg);
-      this.rtcCfg = cfg && cfg.rtc; level.noAuto = !!(cfg && cfg.autoColliders === false);
-      this.buildInteractives(level);
       console.info(`[Walkthrough] "${level.name}": ${registered} products, start camera: ${camName || 'none (default spawn)'}`);
       if (!cfg) console.log('JSON template for this GLB:\n' + JSON.stringify(this.exportTemplate(), null, 2));
 
@@ -1872,16 +1519,7 @@
         }
         p.clips = list; list.forEach((c) => used.add(c));
       });
-      clips.forEach((c) => { if (!used.has(c) && !this.isArchClip(c, level)) level.mixer.clipAction(c).play(); });   // door/window clips wait for a click instead of autoplaying
-    }
-
-/* A clip whose every track animates a node inside a door/window (e.g. modeller-made "WindowOpen") */
-    isArchClip(c, level) {
-      return c.tracks.length > 0 && c.tracks.every((t) => {
-        const o = level.rootGroup.getObjectByName(THREE.PropertyBinding.parseTrackName(t.name).nodeName);
-        for (let n = o; n && n !== level.rootGroup; n = n.parent) if (/(Door|Window)/i.test(n.name)) return true;
-        return false;
-      });
+      clips.forEach((c) => { if (!used.has(c)) level.mixer.clipAction(c).play(); });
     }
 
     animActions(p) {
@@ -2107,20 +1745,18 @@
 
     updateHover() {
       const ui = this.ui;
-      let root = null, hovering = false, label = '';
+      let root = null, hovering = false;
       if (this.currentState === AppState.INSPECT && this.selectedProduct) {
         root = this.selectedProduct.modelRoot;
       } else if (this.currentState === AppState.EXPLORE && this.pointerControls.isLocked) {
         root = this.pickProduct(0, 0);
         hovering = !!root;
-        if (root) label = root.userData.product.name;
-        else { const it = this.pickInteractive(0, 0); if (it) { hovering = true; label = this.interactLabel(it); } }
       }
       this.setOutlineRoot(root);
       if (ui.reticle) ui.reticle.style.transform = hovering ? 'translate(-50%, -50%) scale(2.4)' : 'translate(-50%, -50%)';
       if (ui.hoverTag) {
         ui.hoverTag.classList.toggle('hidden', !hovering);
-        if (hovering) ui.hoverTag.textContent = label;
+        if (hovering) ui.hoverTag.textContent = root.userData.product.name;
       }
     }
 
@@ -2180,7 +1816,7 @@
 
         case AppState.EXPLORE:
           welcomeOverlay.classList.add('opacity-0');
-          setTimeout(() => { if (this.currentState === AppState.EXPLORE || this.currentState === AppState.INSPECT) welcomeOverlay.style.display = 'none'; }, 520);
+          setTimeout(() => welcomeOverlay.style.display = 'none', 200);
           exitBtn.classList.remove('hidden');
           exitBtn.classList.add('flex');
           this.showHintToast();
@@ -2449,174 +2085,6 @@
       }
     }
 
-    /* ------------------------------------------------------------------------
-       Interactive architecture: sliding windows/doors, hinged doors, sit-on-chairs, auto colliders.
-       Everything is found by node name + world-space geometry, so it works on any export rotation.
-       ------------------------------------------------------------------------ */
-    buildInteractives(level) {
-      level.interactives = []; level.autoColliders = []; level.tables = [];
-      const root = level.rootGroup; root.updateMatrixWorld(true);
-      const V = () => new THREE.Vector3(), Y = new THREE.Vector3(0, 1, 0), meshes = [];
-      root.traverse((o) => { if (o.name) meshes.push(o); });   // groups too: multi-material nodes load as Groups
-      const SEAT = /^(SM_Chair(?!And)|SingleSofa|Sofa)/, PANEL = /^SM_.*(Door|Window)_0?\d+(_\d+)?$/, hasAnc = (o, re) => { for (let n = o.parent; n; n = n.parent) if (re.test(n.name)) return true; return false; };
-      const isProd = (o) => { for (let n = o; n; n = n.parent) if (n.userData && n.userData.isSelectableRoot) return true; return false; };
-      const wbox = (o) => new THREE.Box3().setFromObject(o), add = (it) => { it.idx = level.interactives.length; it.t = it.target = 0; level.interactives.push(it); return it; };
-
-      // 1) sliding panels: *_01 / *_02 siblings. The last panel slides over the first (any direction, incl. vertical windows).
-      const groups = new Map();
-      meshes.forEach((m) => { if (PANEL.test(m.name) && !hasAnc(m, PANEL) && !isProd(m)) { if (!groups.has(m.parent)) groups.set(m.parent, []); groups.get(m.parent).push(m); } });
-      /* modeller animations take priority: returns the clip actions that animate anything inside `node` */
-      const clipsFor = (node) => {
-        if (!level.mixer || !level.animations || !level.animations.length) return [];
-        const names = new Set(); node.traverse((o) => names.add(o.name));
-        return level.animations.filter((c) => this.isArchClip(c, level) && c.tracks.some((t) => names.has(THREE.PropertyBinding.parseTrackName(t.name).nodeName)));
-      };
-      const clipItem = (node, label, cl) => {
-        const it = add({ kind: 'clip', label, actions: cl.map((c) => { const a = level.mixer.clipAction(c); a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; return a; }) });
-        node.traverse((x) => { if (x.isMesh) x.userData.interact = it; });
-      };
-      groups.forEach((panels, parent) => {
-        if (panels.length < 2 || !parent.children.some((c) => /Frame/.test(c.name))) return;
-        const cl = clipsFor(parent); if (cl.length) { clipItem(parent, /Window/.test(panels[0].name) ? 'window' : 'door', cl); return; }
-        panels.sort((a, b) => a.name.localeCompare(b.name));
-        const A = panels[0], B = panels[panels.length - 1], bb = wbox(B);
-        const d = wbox(A).getCenter(V()).sub(bb.getCenter(V())), sz = bb.getSize(V());
-        const ax = ['x', 'y', 'z'].reduce((p, c) => (Math.abs(d[c]) > Math.abs(d[p]) ? c : p), 'x');
-        const bf = wbox(parent.children.find((c) => /Frame/.test(c.name))), sg = Math.sign(d[ax]) || 1;
-        const room = sg < 0 ? bb.min[ax] - bf.min[ax] : bf.max[ax] - bb.max[ax];           // how far it can travel before leaving its frame
-        const w = V(); w[ax] = sg * Math.max(0, Math.min(Math.max(Math.abs(d[ax]), sz[ax] * 0.95), room));
-        const p0 = B.getWorldPosition(V()), l0 = parent.worldToLocal(p0.clone()), l1 = parent.worldToLocal(p0.clone().add(w));
-        const it = add({ kind: 'slide', label: /Window/.test(A.name) ? 'window' : 'door', moving: [{ o: B, rest: B.position.clone(), delta: l1.sub(l0) }] });
-        parent.children.forEach((c) => c.traverse((x) => { if (x.isMesh) x.userData.interact = it; }));
-      });
-
-      // 2) hinged door leaf ("SM_Door"): swings on the edge nearest the frame end, away from the room centre
-      meshes.filter((m) => /^SM_Door(_\d+)?$/.test(m.name) && m.parent && m.parent.children.some((c) => /Frame/.test(c.name)) && !m.children.some((c) => /Frame/.test(c.name)) && !isProd(m)).forEach((door) => {
-        const parent = door.parent, frame = parent.children.find((c) => /Frame/.test(c.name)) || parent;
-        const cl = clipsFor(parent); if (cl.length) { clipItem(parent, 'door', cl); return; }
-        const bd = wbox(door), bf = wbox(frame), size = bd.getSize(V()), ax = size.x >= size.z ? 'x' : 'z';
-        const atLo = Math.abs(bd.min[ax] - bf.min[ax]) <= Math.abs(bd.max[ax] - bf.max[ax]);
-        const P = bd.getCenter(V()), free = P.clone(); P[ax] = atLo ? bd.min[ax] : bd.max[ax]; free[ax] = atLo ? bd.max[ax] : bd.min[ax]; P.y = bd.min.y;
-        const rel = free.sub(P).setY(0), c = level.roomBounds ? level.roomBounds.getCenter(V()) : wbox(root).getCenter(V()); c.y = 0;
-        const sw = (k) => P.clone().add(rel.clone().applyAxisAngle(Y, k * Math.PI / 2)).setY(0).distanceTo(c), sgn = sw(1) >= sw(-1) ? 1 : -1;
-        const pivot = new THREE.Object3D(); parent.add(pivot); pivot.position.copy(parent.worldToLocal(P.clone())); pivot.updateMatrixWorld(true); pivot.attach(door);
-        const up = Y.clone().applyQuaternion(parent.getWorldQuaternion(new THREE.Quaternion()).invert());
-        const it = add({ kind: 'hinge', label: 'door', pivot, up, ang: sgn * Math.PI * 0.55 });
-        parent.children.forEach((ch) => ch.traverse((x) => { if (x.isMesh) x.userData.interact = it; }));
-      });
-
-      // 3) seats + 4) automatic colliders for furniture
-      const noAuto = level.noAuto;
-      meshes.forEach((m) => {
-        if (isProd(m)) return;
-        if (SEAT.test(m.name)) {
-          if (hasAnc(m, SEAT)) return;
-          const seat = { kind: 'sit', obj: m, sofa: !/Chair/.test(m.name) }; m.traverse((x) => { if (x.isMesh) x.userData.interact = seat; });
-          if (!noAuto) level.autoColliders.push({ o: m, pad: 0.35 });
-        } else if (/^(SM_Table|RoundTable|Table|SM_Rack|SM_PlanterBox)/.test(m.name) && !hasAnc(m, /^(SM_Table|RoundTable|Table|SM_Rack|SM_PlanterBox)/)) {
-          if (!noAuto) level.autoColliders.push({ o: m, pad: 1 });
-          if (/Table/.test(m.name)) level.tables.push(wbox(m).getCenter(V()));
-        }
-      });
-    }
-
-    /* Branded start screen. Everything is optional in walkthrough.json -> "welcome": { eyebrow, title, tagline, message, highlights[], button, contact } */
-    applyWelcome(cfg) {
-      const w = (cfg && cfg.welcome) || {}, title = w.title || (cfg && cfg.title), $ = (i) => document.getElementById(i);
-      if (!title) return;
-      $('sp-eyebrow').textContent = w.eyebrow || 'Welcome to';
-      $('sp-title').textContent = title;
-      const tg = $('sp-tag'); tg.textContent = w.tagline || ''; tg.classList.toggle('hidden', !w.tagline);
-      $('sp-msg').textContent = w.message || 'Step inside our 3D showroom. Walk around, then click any product to see its price and details.';
-      const tags = [...new Set(((cfg && cfg.products) || []).map((p) => p.tag).filter(Boolean))];
-      const chips = Array.isArray(w.highlights) ? w.highlights : (cfg && cfg.products ? [cfg.products.length + ' products', ...tags] : []);
-      const box = $('sp-chips'); box.textContent = '';
-      chips.slice(0, 8).forEach((t, i) => { const c = document.createElement('span'); c.className = 'px-3 py-1.5 rounded-full text-xs font-medium border border-white/15 bg-white/10 text-white'; c.style.animationDelay = (0.35 + i * 0.07) + 's'; c.textContent = t; box.appendChild(c); });
-      box.classList.toggle('hidden', !chips.length); box.classList.toggle('flex', !!chips.length);
-      this._cta = w.button || 'Enter the Showroom'; this.welcomeReady(this._ready !== false);
-      const ft = $('sp-footer'); if (w.footer !== undefined) { ft.textContent = w.footer; ft.classList.toggle('hidden', !w.footer); }
-      const ct = $('sp-contact'); ct.textContent = w.contact || ''; ct.classList.toggle('hidden', !w.contact);
-      // category tiles with fitting icons: welcome.categories = ["Garden Pipes", "PVC Connectors", "Ball Valves", "Clamps"]
-      const cats = Array.isArray(w.categories) ? w.categories : ['Garden Pipes', 'PVC Connectors', 'Ball Valves', 'Clamps', 'Fittings'];
-      const icon = (t) => /valve/i.test(t) ? 'valve' : /clamp/i.test(t) ? 'clamp' : /tee/i.test(t) ? 'tee' : /connect|coupl|joint/i.test(t) ? 'coupling' : /pipe|hose/i.test(t) ? 'pipe' : 'elbow';
-      const cb = $('sp-cats'); cb.textContent = '';
-      cats.slice(0, 5).forEach((t, i) => {
-        const d = document.createElement('div'); d.className = 'cat rounded-2xl border border-white/10 bg-white/5 py-3 px-2 flex flex-col items-center gap-1.5 text-[11px] sm:text-xs text-slate-200'; d.style.animation = 'welcome-fade .5s ease both'; d.style.animationDelay = (0.25 + i * 0.08) + 's';
-        const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); sv.setAttribute('class', 'w-8 h-8 text-sky-300'); const u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('href', '#ic-' + icon(t)); sv.appendChild(u);
-        const lb = document.createElement('span'); lb.textContent = t; d.append(sv, lb); cb.appendChild(d);
-      });
-      cb.classList.toggle('hidden', !cats.length); cb.classList.toggle('grid', !!cats.length);
-      document.title = title;
-    }
-
-    /* The Enter button doubles as a loader: it is disabled until the 3D scene is ready. */
-    welcomeReady(ready) {
-      this._ready = ready;
-      const b = document.getElementById('sp-enter'); if (!b) return;
-      const pct = this._pct || 0;
-      b.disabled = !ready; b.classList.toggle('opacity-80', !ready);
-      document.getElementById('sp-cta').textContent = ready ? (this._cta || 'Enter the Showroom') : (pct >= 100 ? 'Preparing showroom…' : 'Loading showroom… ' + pct + '%');
-      document.getElementById('sp-progress').style.width = ready ? '0%' : pct + '%';
-    }
-    welcomeProgress(f) { this._pct = Math.round(Math.min(1, f) * 100); if (this._ready === false) this.welcomeReady(false); }
-
-    interactLabel(it) { return it.kind === 'sit' ? 'Sit here' : (it.target ? 'Close ' : 'Open ') + it.label; }
-
-    pickInteractive(nx, ny) {
-      if (!this.currentLevel) return null;
-      _screenPointer.set(nx, ny); _raycaster.setFromCamera(_screenPointer, this.camera); _raycaster.far = APP_CONFIG.interactDistance;
-      const hits = _raycaster.intersectObjects(this.currentLevel.rootGroup.children, true);
-      for (let i = 0; i < hits.length; i++) { const o = hits[i].object; if (o.userData.isOutline || !o.visible) continue; return o.userData.interact || null; }
-      return null;
-    }
-
-    useInteractive(it) { if (it.kind === 'sit') this.sitOn(it); else this.setInteractive(it.idx, !it.target); }
-
-    setInteractive(i, open, remote) {
-      const lv = this.currentLevel, it = lv && lv.interactives && lv.interactives[i]; if (!it) return;
-      it.target = open ? 1 : 0;
-      if (it.kind === 'clip') {   // play the modeller's animation forward to open, backward to close
-        it.actions.forEach((a) => {
-          const d = a.getClip().duration, running = a.isRunning();
-          if (open) { if (running) a.timeScale = 1; else { a.reset(); a.timeScale = 1; a.play(); } }
-          else if (running) a.timeScale = -1; else { a.reset(); a.time = d; a.timeScale = -1; a.play(); }
-        });
-      }
-      if (!remote && this.mp) this.mp.send({ t: 'door', i, open: !!open });
-    }
-
-    updateInteractives(dt) {
-      const lv = this.currentLevel; if (!lv || !lv.interactives) return;
-      lv.interactives.forEach((it) => {
-        if (it.kind === 'clip' || it.t === it.target) return;   // 'clip' items are driven by the AnimationMixer
-        it.t = Math.min(1, Math.max(0, it.t + Math.sign(it.target - it.t) * dt / 0.9));
-        const e = it.t * it.t * (3 - 2 * it.t);
-        if (it.kind === 'slide') it.moving.forEach((m) => m.o.position.copy(m.rest).addScaledVector(m.delta, e));
-        else it.pivot.quaternion.setFromAxisAngle(it.up, it.ang * e);
-      });
-    }
-
-    sitOn(it) {
-      const lv = this.currentLevel, b = new THREE.Box3().setFromObject(it.obj), c = b.getCenter(new THREE.Vector3());
-      const seatY = b.min.y + (it.sofa ? 0.42 : 0.46), ey = seatY + 0.66;
-      const pre = this.seated ? this.seated.pre : this.camera.position.clone();
-      let look = null, bd = 1e9; lv.tables.forEach((t) => { const d = Math.hypot(t.x - c.x, t.z - c.z); if (d < bd) { bd = d; look = t; } });
-      if (!look) look = lv.roomBounds ? lv.roomBounds.getCenter(new THREE.Vector3()) : new THREE.Vector3();
-      const tgt = new THREE.Vector3(look.x, ey - 0.15, look.z); if (Math.hypot(tgt.x - c.x, tgt.z - c.z) < 0.1) tgt.z -= 1;
-      const A = this.cameraAnim; A.active = true; A.progress = 0; A.startPos.copy(this.camera.position);
-      A.targetPos.set(c.x, ey, c.z); A.startLookAt.set(0, 0, -1).applyQuaternion(this.camera.quaternion).add(this.camera.position); A.targetLookAt.copy(tgt);
-      this.seated = { pre, baseY: seatY - 0.75 }; this.audioManager.stop();
-      document.getElementById('stand-btn').classList.remove('hidden');
-    }
-
-    standUp() {
-      if (!this.seated) return;
-      const pre = this.seated.pre, A = this.cameraAnim, f = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion).setY(0).normalize();
-      A.active = true; A.progress = 0; A.startPos.copy(this.camera.position); A.targetPos.copy(pre);
-      A.startLookAt.copy(f).add(this.camera.position); A.targetLookAt.copy(pre).add(f);
-      this.seated = null; document.getElementById('stand-btn').classList.add('hidden');
-    }
-
     raycastSelection(clientX, clientY) {
       if (!this.currentLevel) return;
       let nx = 0, ny = 0;
@@ -2626,7 +2094,6 @@
       }
       const root = this.pickProduct(nx, ny);
       if (root) this.selectObject(root);
-      else { const it = this.pickInteractive(nx, ny); if (it) this.useInteractive(it); }
     }
 
     resolveSelectableRoot(mesh) {
@@ -2804,8 +2271,6 @@
         prev: $('slide-prev'), next: $('slide-next'), hoverTag: $('hover-tag'), reticle: $('reticle')
       };
       document.getElementById('anim-btn').addEventListener('click', () => this.toggleAnim());
-      document.getElementById('stand-btn').addEventListener('click', () => this.standUp());
-      this.mp = new Multiplayer(this); this.mp.bindUI();
       this.ui.prev.addEventListener('click', () => { this.goSlide(this.slideIdx - 1); this.startSlides(); });
       this.ui.next.addEventListener('click', () => { this.goSlide(this.slideIdx + 1); this.startSlides(); });
       this.ui.slideshow.addEventListener('mouseenter', () => this.stopSlides());
@@ -2929,7 +2394,6 @@
       const P = this.preview = { holo, ringB, disc, r, sc, cam: new THREE.PerspectiveCamera(32, 2, 0.01, 100), pivot, floor, active: false, yaw: 0.6, pitch: 0.12, drag: false, idle: 0, last: { x: 0, y: 0 } };
       // Drag = yaw + a limited tilt (so the product can never end up upside down)
       ['pointerdown', 'mousedown', 'touchstart'].forEach((ev) => cv.addEventListener(ev, (e) => e.stopPropagation(), { passive: true }));
-      /* ---- previous (limited) drag handlers, kept for reference; replaced by the free-orbit block below ----
       cv.addEventListener('pointerdown', (e) => { P.drag = true; P.last = { x: e.clientX, y: e.clientY }; try { cv.setPointerCapture(e.pointerId); } catch (_) {} });
       cv.addEventListener('pointermove', (e) => {
         if (!P.drag) return;
@@ -2938,28 +2402,6 @@
         P.last = { x: e.clientX, y: e.clientY }; P.idle = 0;
       });
       ['pointerup', 'pointercancel'].forEach((ev) => cv.addEventListener(ev, () => { P.drag = false; P.idle = 0; }));
-      ---- end of previous handlers ---- */
-      /* Free orbit: horizontal = unlimited spin, vertical = about +/-75 degrees (look at the top and the underside).
-         Targets (ty/tp/tz) are eased every frame, a flick keeps gliding, wheel / pinch zooms, double-click or double-tap resets. */
-      const clamp = THREE.MathUtils.clamp, ptrs = new Map(); let pinch = 0, lastT = 0;
-      Object.assign(P, { ty: 0.6, tp: 0.12, tz: 1, zoom: 1, vx: 0, dist: 4 });
-      cv.addEventListener('pointerdown', (e) => {
-        ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); try { cv.setPointerCapture(e.pointerId); } catch (_) {}
-        P.drag = true; P.vx = 0; P.last = { x: e.clientX, y: e.clientY }; lastT = performance.now(); pinch = 0;
-        if (e.pointerType === 'touch' && lastT - (P.tapT || 0) < 300) { P.ty = 0.6; P.tp = 0.12; P.tz = 1; }   // double-tap reset
-        P.tapT = lastT;
-      });
-      cv.addEventListener('pointermove', (e) => {
-        if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        if (ptrs.size >= 2) { const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch) P.tz = clamp(P.tz * (pinch / d), 0.55, 1.8); pinch = d; P.idle = 0; return; }
-        const now = performance.now(), dt = Math.max(0.008, (now - lastT) / 1000), dx = e.clientX - P.last.x, dy = e.clientY - P.last.y; lastT = now;
-        P.ty += dx * 0.012; P.tp = clamp(P.tp + dy * 0.008, -1.3, 1.3);
-        P.vx = clamp(P.vx + (dx * 0.012 / dt - P.vx) * 0.4, -8, 8);
-        P.last = { x: e.clientX, y: e.clientY }; P.idle = 0;
-      });
-      ['pointerup', 'pointercancel'].forEach((ev) => cv.addEventListener(ev, (e) => { ptrs.delete(e.pointerId); pinch = 0; if (!ptrs.size) { P.drag = false; if (performance.now() - lastT > 90) P.vx = 0; } P.idle = 0; }));
-      cv.addEventListener('wheel', (e) => { e.preventDefault(); P.tz = clamp(P.tz * (e.deltaY > 0 ? 1.1 : 0.9), 0.55, 1.8); P.idle = 0; }, { passive: false });
-      cv.addEventListener('dblclick', () => { P.ty = 0.6; P.tp = 0.12; P.tz = 1; P.vx = 0; });
     }
 
     showPreview() {
@@ -3014,7 +2456,6 @@
       P.floor.position.y = -(sz.y / 2) / rad; P.floor.scale.setScalar(Math.max(sz.x, sz.z) / rad * 1.5);
       P.cam.position.set(0, 0.4, 0.95 / Math.sin(THREE.MathUtils.degToRad(P.cam.fov / 2))); P.cam.lookAt(0, -0.05, 0);
       P.yaw = 0.6; P.pitch = 0.12; P.idle = 9; P.active = true;
-      P.ty = 0.6; P.tp = 0.12; P.tz = P.zoom = 1; P.vx = 0; P.dist = 0.95 / Math.sin(THREE.MathUtils.degToRad(P.cam.fov / 2));
     }
 
     hidePreview() {
@@ -3025,13 +2466,8 @@
     renderPreview(dt) {
       const P = this.preview;
       P.idle += dt;
-      /* old version (instant, limited tilt):  if (!P.drag && P.idle > 1.5) P.yaw += dt * 0.6;  P.pivot.rotation.set(P.pitch, P.yaw, 0); */
-      const k = 1 - Math.exp(-14 * dt);
-      if (!P.drag) { P.ty += P.vx * dt; P.vx *= Math.exp(-3.5 * dt); }                       // glide after a flick
-      if (!P.drag && P.idle > 1.5 && Math.abs(P.vx) < 0.05) P.ty += dt * 0.6;              // gentle turntable once the user lets go
-      P.yaw += (P.ty - P.yaw) * k; P.pitch += (P.tp - P.pitch) * k; P.zoom += (P.tz - P.zoom) * k;
+      if (!P.drag && P.idle > 1.5) P.yaw += dt * 0.6;      // gentle turntable once the user lets go
       P.pivot.rotation.set(P.pitch, P.yaw, 0);
-      P.cam.position.set(0, 0.4, P.dist * P.zoom); P.cam.lookAt(0, -0.05, 0);
       if (P.mixer) P.mixer.update(dt);
       P.t = (P.t || 0) + dt; P.ringB.rotation.z -= dt * 0.8; P.disc.material.opacity = 0.14 + Math.sin(P.t * 2) * 0.04;
       P.r.render(P.sc, P.cam);
@@ -3106,14 +2542,12 @@
       document.getElementById('loading-subtitle').textContent = subtitle;
       o.classList.remove('opacity-0');
       o.style.display = 'flex';
-      this._pct = 0; this.welcomeReady(false);
     }
 
     hideLoading() {
       const o = document.getElementById('loading-overlay');
       o.classList.add('opacity-0');
       setTimeout(() => o.style.display = 'none', 200);
-      this.welcomeReady(true);
     }
 
     /* ------------------------------------------------------------------------
@@ -3156,9 +2590,6 @@
         this.updateLocomotion(delta);
       }
 
-      this.updateInteractives(delta);
-      if (this.mp) this.mp.update(delta);
-
       const sp = this.rig.spot;
       if (sp) {
         const on = !!(this.selectedProduct && this.settings.spotlight);
@@ -3190,7 +2621,6 @@
         if (this.keyState.right) side += 1;
       }
 
-      if (this.seated) { if (Math.abs(forward) + Math.abs(side) > 0.2) this.standUp(); return; }
       const len = Math.hypot(side, forward);
       if (len > 1) {
         side /= len;
@@ -3251,8 +2681,6 @@
       for (let i = 0; i < colliders.length; i++) {
         const box = colliders[i];
         if (x >= box.min.x && x <= box.max.x && z >= box.min.z && z <= box.max.z) {
-          const cp = this.camera.position;   // already inside (e.g. spawned next to a counter)? let them walk out
-          if (cp.x >= box.min.x && cp.x <= box.max.x && cp.z >= box.min.z && cp.z <= box.max.z) continue;
           return false;
         }
       }
@@ -3281,8 +2709,6 @@
       });
       $('settings-btn').onclick = () => this.toggleSettings();
       $('welcome-settings-btn').onclick = () => this.toggleSettings(true);
-      $('sp-settings-btn').onclick = () => this.toggleSettings(true);
-      $('sp-enter').onclick = () => { const p = $('start-page'); p.classList.add('opacity-0'); p.style.pointerEvents = 'none'; setTimeout(() => { p.style.display = 'none'; }, 520); };
       $('close-settings-btn').onclick = () => this.toggleSettings(false);
       $('reset-settings-btn').onclick = () => { this.settings = { ...DEFAULT_SETTINGS }; this.saveSettings(); this.setupSettings(); };
       this.applySettings();
@@ -3343,7 +2769,6 @@
     }
 
     applySettings() {
-      if (this.mp) this.mp.syncStyle();
       const s = this.settings, t = THEMES[s.theme] || THEMES.minimal, r = document.documentElement;
       Object.entries(t).forEach(([k, v]) => { if (k !== 'name') r.style.setProperty('--' + k, v); });
       r.style.setProperty('--sel', s.selColor); r.style.setProperty('--ret', s.reticleColor);

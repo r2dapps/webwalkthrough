@@ -1,5 +1,24 @@
 {
   "title": "Sudhakar Stall",
+  "welcome": {
+    "eyebrow": "Welcome to",
+    "title": "Sudhakar Pipes & Fittings",
+    "tagline": "Quality PVC pipes, garden fittings & plumbing essentials",
+    "message": "Step inside our 3D showroom. Walk around, open the doors, take a seat, and click any product to see its price and details. Invite a friend to explore with you using voice chat.",
+    "highlights": [
+      "Walk-through 3D",
+      "Live product preview",
+      "Voice chat"
+    ],
+    "button": "Enter the Showroom",
+    "categories": [
+      "Garden Pipes",
+      "PVC Connectors",
+      "Ball Valves",
+      "Clamps",
+      "Fittings"
+    ]
+  },
   "glb": "scene/scene.glb",
   "startCamera": "Main Camera",
   "eyeHeight": 1.65,

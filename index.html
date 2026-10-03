@@ -880,7 +880,7 @@
   }
 
   class Multiplayer {
-    constructor(app) { this.app = app; this.peers = new Map(); this.live = false; this.me = { name: 'Guest', color: MP_COLORS[0] }; this.sendT = 0; this.muted = false; }
+    constructor(app) { this.app = app; this.peers = new Map(); this.live = false; this.me = { name: 'Guest', color: MP_COLORS[0] }; this.sendT = 0; this.muted = false; this._hbTimer = null; this._iceTimers = new Map(); }
     $(id) { return document.getElementById(id); }
 
     bindUI() {
@@ -908,6 +908,12 @@
       const onUnload = () => { if (this.live) { try { this.send({ t: 'bye' }); } catch (e) {} this.leave(true); } };
       window.addEventListener('beforeunload', onUnload);
       window.addEventListener('pagehide', onUnload);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && this.live) {
+          this.sendT = 999;
+          this.send({ t: 'hb' });
+        }
+      });
 
       const savedRoom = q.get('room') || sessionStorage.getItem('iwt.room');
       if (savedRoom) {
@@ -931,12 +937,15 @@
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
         { urls: 'stun:stun.cloudflare.com:3478' },
         {
           urls: [
             'turn:openrelay.metered.ca:80',
             'turn:openrelay.metered.ca:443',
-            'turn:openrelay.metered.ca:443?transport=tcp'
+            'turn:openrelay.metered.ca:443?transport=tcp',
+            'turns:openrelay.metered.ca:443?transport=tcp',
+            'turns:openrelay.metered.ca:5349'
           ],
           username: 'openrelayproject',
           credential: 'openrelayproject'
@@ -947,10 +956,19 @@
         debug: 1,
         config: {
           iceServers,
-          iceCandidatePoolSize: 10,
+          iceCandidatePoolSize: 2,
           iceTransportPolicy: 'all'
         }
       }, pc);
+    }
+
+    startHeartbeat() {
+      if (this._hbTimer) clearInterval(this._hbTimer);
+      this._hbTimer = setInterval(() => {
+        if (this.live) {
+          this.send({ t: 'hb' });
+        }
+      }, 2500);
     }
 
     async start(mode, code) {
@@ -997,6 +1015,7 @@
           this.onConn(c, true);
         }
         this.live = true;
+        this.startHeartbeat();
         try { sessionStorage.setItem('iwt.room', this.code); } catch (e) {}
         const u = new URL(location.href);
         if (u.searchParams.get('room') !== this.code) {
@@ -1018,13 +1037,27 @@
       const pc = c.peerConnection;
       if (pc) {
         pc.onconnectionstatechange = () => {
-          if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
+          if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
             this.removePeer(c.peer);
           }
         };
         pc.oniceconnectionstatechange = () => {
-          if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
+          if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
             this.removePeer(c.peer);
+          } else if (pc.iceConnectionState === 'disconnected') {
+            // Temporary network hiccup / ICE re-routing - allow 15 seconds to recover
+            if (this._iceTimers && this._iceTimers.has(c.peer)) clearTimeout(this._iceTimers.get(c.peer));
+            if (!this._iceTimers) this._iceTimers = new Map();
+            this._iceTimers.set(c.peer, setTimeout(() => {
+              if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+                this.removePeer(c.peer);
+              }
+            }, 15000));
+          } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            if (this._iceTimers && this._iceTimers.has(c.peer)) {
+              clearTimeout(this._iceTimers.get(c.peer));
+              this._iceTimers.delete(c.peer);
+            }
           }
         };
       }
@@ -1045,15 +1078,33 @@
         this.onData(c.peer, d);
       });
       c.on('close', () => this.removePeer(c.peer));
-      c.on('error', () => this.removePeer(c.peer));
+      c.on('error', (err) => console.warn('[Multiplayer] DataChannel error with', c.peer, err));
     }
-    onCall(call) { call.on('stream', (st) => this.attach(call.peer, st)); }
+    onCall(call) {
+      const P = this.addPeer(call.peer);
+      P.call = call;
+      call.on('stream', (st) => this.attach(call.peer, st));
+      call.on('error', (err) => console.warn('[Multiplayer] MediaConnection error with', call.peer, err));
+    }
     addPeer(id) {
       let P = this.peers.get(id);
       if (!P) { P = { id, name: 'Guest', color: MP_COLORS[0], av: new Avatar('Guest', MP_COLORS[0]), lastSeen: performance.now() }; this.app.scene.add(P.av.group); this.peers.set(id, P); this.refreshUI(); }
       return P;
     }
-    removePeer(id) { const P = this.peers.get(id); if (!P) return; P.av.dispose(); try { P.pan && P.pan.disconnect(); } catch (e) {} this.peers.delete(id); this.refreshUI(); }
+    removePeer(id) {
+      if (this._iceTimers && this._iceTimers.has(id)) {
+        clearTimeout(this._iceTimers.get(id));
+        this._iceTimers.delete(id);
+      }
+      const P = this.peers.get(id);
+      if (!P) return;
+      try { P.conn && P.conn.close(); } catch (e) {}
+      try { P.call && P.call.close(); } catch (e) {}
+      P.av.dispose();
+      try { P.pan && P.pan.disconnect(); } catch (e) {}
+      this.peers.delete(id);
+      this.refreshUI();
+    }
 
     attach(id, stream) {
       const P = this.addPeer(id); if (P.stream || !stream.getAudioTracks().length) return; P.stream = stream;
@@ -1066,8 +1117,9 @@
     }
 
     onData(id, d) {
-      const P = this.addPeer(id), app = this.app, lv = app.currentLevel;
       if (!d || typeof d !== 'object') return;
+      if (d.t === 'hb') return;
+      const P = this.addPeer(id), app = this.app, lv = app.currentLevel;
       if (d.t === 'bye') { this.removePeer(id); return; }
       if (d.t === 'hello') { P.name = String(d.name || 'Guest').slice(0, 16); P.color = Number.isInteger(d.color) && d.color >= 0 && d.color <= 0xffffff ? d.color : MP_COLORS[0]; const sty = d.style === 'robot' ? 'robot' : 'classic';
         if (sty !== P.av.style) { const old = P.av, nv = new Avatar(P.name, P.color, sty); nv.tgt = old.tgt; this.app.scene.add(nv.group); old.dispose(); P.av = nv; }
@@ -1099,7 +1151,7 @@
       else if (L.setPosition) { L.setPosition(cam.position.x, cam.position.y, cam.position.z); L.setOrientation(f.x, f.y, f.z, 0, 1, 0); }
       const now = performance.now();
       this.peers.forEach((P, id) => {
-        if (P.lastSeen && (now - P.lastSeen > 6000)) {
+        if (P.lastSeen && (now - P.lastSeen > 25000)) {
           this.removePeer(id);
           return;
         }
@@ -1115,13 +1167,20 @@
     leave(silent) {
       if (this.live) { try { this.send({ t: 'bye' }); } catch (e) {} }
       this.live = false;
+      if (this._hbTimer) { clearInterval(this._hbTimer); this._hbTimer = null; }
+      if (this._iceTimers) { this._iceTimers.forEach((t) => clearTimeout(t)); this._iceTimers.clear(); }
       try { sessionStorage.removeItem('iwt.room'); } catch (e) {}
       const u = new URL(location.href);
       if (u.searchParams.has('room')) {
         u.searchParams.delete('room');
         history.replaceState(null, '', u.href);
       }
-      this.peers.forEach((P) => { try { P.conn && P.conn.close(); } catch (e) {} P.av.dispose(); }); this.peers.clear();
+      this.peers.forEach((P) => {
+        try { P.conn && P.conn.close(); } catch (e) {}
+        try { P.call && P.call.close(); } catch (e) {}
+        P.av.dispose();
+      });
+      this.peers.clear();
       try { this.peer && this.peer.destroy(); } catch (e) {} this.peer = null;
       if (this.stream) this.stream.getTracks().forEach((t) => t.stop()); this.stream = this.out = null;
       try { this.ctx && this.ctx.close(); } catch (e) {} this.ctx = null;

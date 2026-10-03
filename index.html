@@ -829,25 +829,25 @@
     }
 /* Cute robot: bean-shaped shell, small dome head with a glowing visor, stubby legs and round mitten hands. */
     buildRobot(g, mat, color) {
-      this.hipY = 0.5;
+      this.hipY = 0.54;
       const shell = this.body = mat(color, 0.35), white = mat(0xf4f7fb, 0.4), dark = mat(0x1d2433, 0.5);
       const glow = this.glow = new THREE.MeshStandardMaterial({ color: 0x0b1220, emissive: lin(0x7dd3fc), emissiveIntensity: 0.9, roughness: 0.3 });
       const upper = this.upper = new THREE.Group(); g.add(upper);
       const prof = [[0.001, 0], [0.2, 0.02], [0.3, 0.2], [0.33, 0.42], [0.3, 0.62], [0.2, 0.76], [0.001, 0.8]].map(([x, y]) => new THREE.Vector2(x, y));
-      const torso = new THREE.Mesh(new THREE.LatheGeometry(prof, 28), shell); torso.position.y = 0.46;
-      const belly = new THREE.Mesh(new THREE.CircleGeometry(0.16, 24), white); belly.position.set(0, 0.84, -0.322); belly.rotation.y = Math.PI;
-      const light = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 10), glow); light.position.set(0, 0.84, -0.33); light.scale.z = 0.4;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 18), white); head.position.y = 1.4;
-      const visor = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14), dark); visor.position.set(0, 1.4, -0.115); visor.scale.set(1, 0.62, 0.45);
-      this.eyes = [-1, 1].map((k) => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 8), glow); e.position.set(k * 0.055, 1.41, -0.172); return e; });
-      const ears = [-1, 1].map((k) => { const e = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 16), shell); e.rotation.z = Math.PI / 2; e.position.set(k * 0.175, 1.4, 0); return e; });
-      const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.12, 8), dark); stick.position.y = 1.62;
-      this.ant = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), glow); this.ant.position.y = 1.7;
+      const torso = new THREE.Mesh(new THREE.LatheGeometry(prof, 28), shell); torso.position.y = 0.50;
+      const belly = new THREE.Mesh(new THREE.CircleGeometry(0.16, 24), white); belly.position.set(0, 0.88, -0.322); belly.rotation.y = Math.PI;
+      const light = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 10), glow); light.position.set(0, 0.88, -0.33); light.scale.z = 0.4;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 18), white); head.position.y = 1.44;
+      const visor = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14), dark); visor.position.set(0, 1.44, -0.115); visor.scale.set(1, 0.62, 0.45);
+      this.eyes = [-1, 1].map((k) => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 8), glow); e.position.set(k * 0.055, 1.45, -0.172); return e; });
+      const ears = [-1, 1].map((k) => { const e = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 16), shell); e.rotation.z = Math.PI / 2; e.position.set(k * 0.175, 1.44, 0); return e; });
+      const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.12, 8), dark); stick.position.y = 1.66;
+      this.ant = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), glow); this.ant.position.y = 1.74;
       upper.add(torso, belly, light, head, visor, ...this.eyes, ...ears, stick, this.ant);
-      this.arms = [-1, 1].map((k) => { const a = new THREE.Group(); a.position.set(k * 0.37, 1.06, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.26, 12), shell), h = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 10), white); m.position.y = -0.13; h.position.y = -0.3; a.add(m, h); upper.add(a); return a; });
-      this.legs = [-1, 1].map((k) => { const l = new THREE.Group(); l.position.set(k * 0.13, 0.5, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.055, 0.36, 12), dark), f = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 10), shell); m.position.y = -0.18; f.position.set(0, -0.44, -0.03); f.scale.set(1, 0.6, 1.45); l.add(m, f); g.add(l); return l; });
+      this.arms = [-1, 1].map((k) => { const a = new THREE.Group(); a.position.set(k * 0.37, 1.10, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.26, 12), shell), h = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 10), white); m.position.y = -0.13; h.position.y = -0.3; a.add(m, h); upper.add(a); return a; });
+      this.legs = [-1, 1].map((k) => { const l = new THREE.Group(); l.position.set(k * 0.13, 0.54, 0); const m = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.32, 12), dark), f = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 10), shell); m.position.y = -0.16; f.position.set(0, -0.36, -0.02); f.scale.set(1, 0.65, 1.4); l.add(m, f); g.add(l); return l; });
       this.ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.37, 40), new THREE.MeshBasicMaterial({ color: lin(color), transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-      this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.02; g.add(this.ring);
+      this.ring.rotation.x = -Math.PI / 2; this.ring.position.y = 0.04; g.add(this.ring);
     }
     setStyle(name, color) {
       this.body.color.copy(lin(color)); this.ring.material.color.copy(lin(color));
@@ -859,13 +859,14 @@
     }
     update(dt) {
       const t = this.tgt, g = this.group; if (!t) return;
-      const ty = t.y + (t.s ? 0.8 - this.hipY : 0);   // seated pose: align the hip with the seat for either character
+      const groundOffset = this.style === 'robot' ? 0.06 : 0.02;
+      const ty = t.y + groundOffset + (t.s ? 0.8 - this.hipY : 0);   // seated pose: align the hip with the seat for either character
       if (!this.init || Math.hypot(t.x - g.position.x, t.z - g.position.z) > 6) { g.position.set(t.x, ty, t.z); g.rotation.y = t.r; this.init = true; }
       const k = 1 - Math.exp(-12 * dt), px = g.position.x, pz = g.position.z;
       g.position.x += (t.x - px) * k; g.position.z += (t.z - pz) * k; g.position.y += (ty - g.position.y) * k;
       let dr = t.r - g.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr)); g.rotation.y += dr * k;
       const spd = Math.hypot(g.position.x - px, g.position.z - pz) / Math.max(dt, 1e-3); this.phase += spd * dt * 3.2;
-      const sw = Math.min(spd / 1.5, 1) * 0.7 * Math.sin(this.phase);
+      const sw = Math.min(spd / 1.5, 1) * 0.6 * Math.sin(this.phase);
       if (t.s) { this.legs.forEach((l) => { l.rotation.x = 1.45; }); this.arms.forEach((a) => { a.rotation.x = 0.6; }); }
       else { this.legs[0].rotation.x = sw; this.legs[1].rotation.x = -sw; this.arms[0].rotation.x = -sw * 0.8; this.arms[1].rotation.x = sw * 0.8; }
       this.ring.material.opacity = 0.15 + this.talk * 0.85; this.ring.scale.setScalar(1 + this.talk * 0.25);
@@ -892,13 +893,26 @@
       try { $('mp-name').value = localStorage.getItem('iwt.name') || ''; } catch (e) {}
       const open = (v) => { $('mp-modal').classList.toggle('hidden', !v); $('mp-modal').classList.toggle('flex', v); if (v && this.app.pointerControls.isLocked) this.app.pointerControls.unlock(); };
       $('mp-btn').onclick = () => open(true); $('mp-close').onclick = () => open(false); this.open = open;
-      const go = (mode) => { const code = $('mp-code').value.trim().toUpperCase(); if (mode === 'join' && code.length < 5) return this.err('Enter the 5-letter room code.'); this.start(mode, code); };
+      const go = (mode) => {
+        const code = $('mp-code').value.trim().toUpperCase();
+        if (mode === 'join' && code.length < 5) return this.err('Enter the 5-letter room code.');
+        this.app.enterLiveScene();
+        this.start(mode, code);
+      };
       $('mp-create').onclick = () => go('host'); $('mp-join').onclick = () => go('join');
       $('mp-leave').onclick = () => this.leave();
       const mute = () => { this.muted = !this.muted; if (this.out) this.out.getAudioTracks().forEach((t) => { t.enabled = !this.muted; }); $('mp-mute').textContent = this.muted ? 'Unmute mic' : 'Mute mic'; $('mp-hud-mute').firstElementChild.className = 'fa-solid ' + (this.muted ? 'fa-microphone-slash' : 'fa-microphone'); };
       $('mp-mute').onclick = mute; $('mp-hud-mute').onclick = mute;
       $('mp-copy').onclick = () => { const u = new URL(location.href); u.searchParams.set('room', this.code); navigator.clipboard && navigator.clipboard.writeText(u.href); $('mp-copy').lastElementChild.textContent = 'Copied!'; setTimeout(() => { $('mp-copy').lastElementChild.textContent = 'Copy invite link'; }, 1500); };
-      if (q.get('room')) { $('mp-code').value = q.get('room').slice(0, 5); open(true); }
+      
+      const onUnload = () => { if (this.live) { try { this.send({ t: 'bye' }); } catch (e) {} this.leave(true); } };
+      window.addEventListener('beforeunload', onUnload);
+      window.addEventListener('pagehide', onUnload);
+
+      const savedRoom = q.get('room') || sessionStorage.getItem('iwt.room');
+      if (savedRoom) {
+        $('mp-code').value = savedRoom.slice(0, 5).toUpperCase();
+      }
     }
     /* keep the character choice in sync (Settings panel <-> multiplayer window) and tell everyone when it changes */
     syncStyle() {
@@ -912,7 +926,31 @@
     peerOpts() {
       const c = this.app.rtcCfg || {}, q = new URLSearchParams(location.search), pc = Object.assign({}, c.peer);
       if (q.get('peerHost')) Object.assign(pc, { host: q.get('peerHost'), port: +q.get('peerPort') || 9000, path: q.get('peerPath') || '/', secure: q.get('peerSecure') === '1' });
-      return Object.assign({ config: { iceServers: c.iceServers || [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] } }, pc);
+      const defaultIce = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun.cloudflare.com:3478' },
+        {
+          urls: [
+            'turn:openrelay.metered.ca:80',
+            'turn:openrelay.metered.ca:443',
+            'turn:openrelay.metered.ca:443?transport=tcp'
+          ],
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        }
+      ];
+      const iceServers = (c.iceServers && c.iceServers.length) ? c.iceServers : defaultIce;
+      return Object.assign({
+        debug: 1,
+        config: {
+          iceServers,
+          iceCandidatePoolSize: 10,
+          iceTransportPolicy: 'all'
+        }
+      }, pc);
     }
 
     async start(mode, code) {
@@ -927,11 +965,25 @@
         if ($('mp-mic').checked) { try { this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); } catch (e) { this.err('Microphone blocked: you can listen but others will not hear you.'); } }
         this.out = this.stream || new MediaStream(); this.muted = false;
         this.isHost = mode === 'host'; this.code = this.isHost ? randCode() : code;
+        if (this.peer) { try { this.peer.destroy(); } catch (e) {} this.peer = null; }
         await new Promise((res, rej) => {
+          let timer = setTimeout(() => rej(new Error('Connection timed out. Check your internet/Wi-Fi.')), 15000);
           const open = (id, n) => {
             const p = new Peer(id, this.peerOpts());
-            p.on('open', () => { this.peer = p; res(); });
-            p.on('error', (e) => { if (!this.peer && this.isHost && e.type === 'unavailable-id' && n < 5) { p.destroy(); this.code = randCode(); open('rzl3d-' + this.code, n + 1); } else if (!this.peer) rej(e); else if (e.type === 'peer-unavailable') this.fail('Room not found. Check the code.'); });
+            p.on('open', () => { clearTimeout(timer); this.peer = p; res(); });
+            p.on('error', (e) => {
+              if (!this.peer && this.isHost && e.type === 'unavailable-id' && n < 5) {
+                p.destroy();
+                this.code = randCode();
+                open('rzl3d-' + this.code, n + 1);
+              } else if (!this.peer) {
+                clearTimeout(timer);
+                p.destroy();
+                if (e.type === 'peer-unavailable') rej(new Error('Room not found. Check the code.'));
+                else if (e.type === 'unavailable-id') rej(new Error('Room ID busy. Please retry in a few seconds.'));
+                else rej(e);
+              }
+            });
           };
           open(this.isHost ? 'rzl3d-' + this.code : undefined, 0);
         });
@@ -939,31 +991,66 @@
         p.on('connection', (c) => this.onConn(c, false));
         p.on('call', (call) => { call.answer(this.out); this.onCall(call); });
         p.on('disconnected', () => { try { p.reconnect(); } catch (e) {} });
-        if (!this.isHost) this.onConn(p.connect('rzl3d-' + this.code, { reliable: true }), true);
-        this.live = true; $('mp-setup').classList.add('hidden'); $('mp-live').classList.remove('hidden'); $('mp-room').textContent = this.code;
-        $('mp-hud').classList.remove('hidden'); $('mp-hud').classList.add('flex'); this.refreshUI();
+        p.on('error', (e) => { if (e.type === 'peer-unavailable') this.err('Peer unavailable.'); });
+        if (!this.isHost) {
+          const c = p.connect('rzl3d-' + this.code, { reliable: true });
+          this.onConn(c, true);
+        }
+        this.live = true;
+        try { sessionStorage.setItem('iwt.room', this.code); } catch (e) {}
+        const u = new URL(location.href);
+        if (u.searchParams.get('room') !== this.code) {
+          u.searchParams.set('room', this.code);
+          history.replaceState(null, '', u.href);
+        }
+        $('mp-setup').classList.add('hidden'); $('mp-live').classList.remove('hidden'); $('mp-room').textContent = this.code;
+        $('mp-hud').classList.remove('hidden'); $('mp-hud').classList.add('flex');
+        this.open(false);
+        this.app.enterLiveScene();
+        this.refreshUI();
       } catch (e) { this.fail((e && e.message) || 'Could not connect.'); }
       $('mp-create').disabled = $('mp-join').disabled = false;
     }
     fail(m) { this.leave(true); this.err(m); }
 
     onConn(c, initiator) {
+      if (!c) return;
+      const pc = c.peerConnection;
+      if (pc) {
+        pc.onconnectionstatechange = () => {
+          if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
+            this.removePeer(c.peer);
+          }
+        };
+        pc.oniceconnectionstatechange = () => {
+          if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
+            this.removePeer(c.peer);
+          }
+        };
+      }
       c.on('open', () => {
-        const P = this.addPeer(c.peer); P.conn = c;
+        const P = this.addPeer(c.peer); P.conn = c; P.lastSeen = performance.now();
         c.send({ t: 'hello', name: this.me.name, color: this.me.color, style: this.me.style });
-        if (initiator) this.onCall(this.peer.call(c.peer, this.out));
-        else if (this.isHost) {
+        if (initiator) {
+          const call = this.peer.call(c.peer, this.out);
+          if (call) this.onCall(call);
+        } else if (this.isHost) {
           c.send({ t: 'peers', list: [...this.peers.keys()].filter((id) => id !== c.peer) });
           const lv = this.app.currentLevel; if (lv && lv.interactives) c.send({ t: 'doors', o: lv.interactives.map((x) => x.target) });
         }
       });
-      c.on('data', (d) => this.onData(c.peer, d));
+      c.on('data', (d) => {
+        const P = this.peers.get(c.peer);
+        if (P) P.lastSeen = performance.now();
+        this.onData(c.peer, d);
+      });
       c.on('close', () => this.removePeer(c.peer));
+      c.on('error', () => this.removePeer(c.peer));
     }
     onCall(call) { call.on('stream', (st) => this.attach(call.peer, st)); }
     addPeer(id) {
       let P = this.peers.get(id);
-      if (!P) { P = { id, name: 'Guest', color: MP_COLORS[0], av: new Avatar('Guest', MP_COLORS[0]) }; this.app.scene.add(P.av.group); this.peers.set(id, P); this.refreshUI(); }
+      if (!P) { P = { id, name: 'Guest', color: MP_COLORS[0], av: new Avatar('Guest', MP_COLORS[0]), lastSeen: performance.now() }; this.app.scene.add(P.av.group); this.peers.set(id, P); this.refreshUI(); }
       return P;
     }
     removePeer(id) { const P = this.peers.get(id); if (!P) return; P.av.dispose(); try { P.pan && P.pan.disconnect(); } catch (e) {} this.peers.delete(id); this.refreshUI(); }
@@ -981,6 +1068,7 @@
     onData(id, d) {
       const P = this.addPeer(id), app = this.app, lv = app.currentLevel;
       if (!d || typeof d !== 'object') return;
+      if (d.t === 'bye') { this.removePeer(id); return; }
       if (d.t === 'hello') { P.name = String(d.name || 'Guest').slice(0, 16); P.color = Number.isInteger(d.color) && d.color >= 0 && d.color <= 0xffffff ? d.color : MP_COLORS[0]; const sty = d.style === 'robot' ? 'robot' : 'classic';
         if (sty !== P.av.style) { const old = P.av, nv = new Avatar(P.name, P.color, sty); nv.tgt = old.tgt; this.app.scene.add(nv.group); old.dispose(); P.av = nv; }
         else P.av.setStyle(P.name, P.color);
@@ -1009,7 +1097,12 @@
       const L = this.ctx.listener, f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
       if (L.positionX) { L.positionX.value = cam.position.x; L.positionY.value = cam.position.y; L.positionZ.value = cam.position.z; L.forwardX.value = f.x; L.forwardY.value = f.y; L.forwardZ.value = f.z; L.upX.value = 0; L.upY.value = 1; L.upZ.value = 0; }
       else if (L.setPosition) { L.setPosition(cam.position.x, cam.position.y, cam.position.z); L.setOrientation(f.x, f.y, f.z, 0, 1, 0); }
-      this.peers.forEach((P) => {
+      const now = performance.now();
+      this.peers.forEach((P, id) => {
+        if (P.lastSeen && (now - P.lastSeen > 6000)) {
+          this.removePeer(id);
+          return;
+        }
         P.av.update(dt);
         if (P.pan) {
           const h = P.av.group.position, v = P.pan;
@@ -1020,7 +1113,15 @@
     }
 
     leave(silent) {
-      this.live = false; this.peers.forEach((P) => { try { P.conn && P.conn.close(); } catch (e) {} P.av.dispose(); }); this.peers.clear();
+      if (this.live) { try { this.send({ t: 'bye' }); } catch (e) {} }
+      this.live = false;
+      try { sessionStorage.removeItem('iwt.room'); } catch (e) {}
+      const u = new URL(location.href);
+      if (u.searchParams.has('room')) {
+        u.searchParams.delete('room');
+        history.replaceState(null, '', u.href);
+      }
+      this.peers.forEach((P) => { try { P.conn && P.conn.close(); } catch (e) {} P.av.dispose(); }); this.peers.clear();
       try { this.peer && this.peer.destroy(); } catch (e) {} this.peer = null;
       if (this.stream) this.stream.getTracks().forEach((t) => t.stop()); this.stream = this.out = null;
       try { this.ctx && this.ctx.close(); } catch (e) {} this.ctx = null;
@@ -1680,6 +1781,7 @@
       model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
       _box.setFromObject(model);
       const b = _box.clone();
+      level.floorY = b.min.y;
       const r = APP_CONFIG.playerRadius + 0.1;
       if (cfg.eyeHeight) level.eyeHeight = cfg.eyeHeight;
       if (cfg.bounds && cfg.bounds.min && cfg.bounds.max) {
@@ -2490,18 +2592,29 @@
         parent.children.forEach((c) => c.traverse((x) => { if (x.isMesh) x.userData.interact = it; }));
       });
 
-      // 2) hinged door leaf ("SM_Door"): swings on the edge nearest the frame end, away from the room centre
+      // 2) Sliding door leaves ("SM_Door"): slides smoothly along frame track, never hinging away from place!
       meshes.filter((m) => /^SM_Door(_\d+)?$/.test(m.name) && m.parent && m.parent.children.some((c) => /Frame/.test(c.name)) && !m.children.some((c) => /Frame/.test(c.name)) && !isProd(m)).forEach((door) => {
         const parent = door.parent, frame = parent.children.find((c) => /Frame/.test(c.name)) || parent;
         const cl = clipsFor(parent); if (cl.length) { clipItem(parent, 'door', cl); return; }
-        const bd = wbox(door), bf = wbox(frame), size = bd.getSize(V()), ax = size.x >= size.z ? 'x' : 'z';
-        const atLo = Math.abs(bd.min[ax] - bf.min[ax]) <= Math.abs(bd.max[ax] - bf.max[ax]);
-        const P = bd.getCenter(V()), free = P.clone(); P[ax] = atLo ? bd.min[ax] : bd.max[ax]; free[ax] = atLo ? bd.max[ax] : bd.min[ax]; P.y = bd.min.y;
-        const rel = free.sub(P).setY(0), c = level.roomBounds ? level.roomBounds.getCenter(V()) : wbox(root).getCenter(V()); c.y = 0;
-        const sw = (k) => P.clone().add(rel.clone().applyAxisAngle(Y, k * Math.PI / 2)).setY(0).distanceTo(c), sgn = sw(1) >= sw(-1) ? 1 : -1;
-        const pivot = new THREE.Object3D(); parent.add(pivot); pivot.position.copy(parent.worldToLocal(P.clone())); pivot.updateMatrixWorld(true); pivot.attach(door);
-        const up = Y.clone().applyQuaternion(parent.getWorldQuaternion(new THREE.Quaternion()).invert());
-        const it = add({ kind: 'hinge', label: 'door', pivot, up, ang: sgn * Math.PI * 0.55 });
+        const fixed = parent.children.find((c) => /Fixed/i.test(c.name));
+        const bd = wbox(door), bf = wbox(frame), sizeF = bf.getSize(V()), sz = bd.getSize(V());
+        const ax = sizeF.x >= sizeF.z ? 'x' : 'z';
+        let sg = 1, travel = 0;
+        if (fixed) {
+          const fixedCenter = wbox(fixed).getCenter(V());
+          const doorCenter = bd.getCenter(V());
+          sg = Math.sign(fixedCenter[ax] - doorCenter[ax]) || 1;
+          const room = sg > 0 ? (bf.max[ax] - bd.max[ax]) : (bd.min[ax] - bf.min[ax]);
+          const dist = Math.abs(fixedCenter[ax] - doorCenter[ax]);
+          travel = Math.max(0, Math.min(room, Math.max(dist, sz[ax] * 0.9)));
+        } else {
+          sg = (bf.max[ax] - bd.max[ax] >= bd.min[ax] - bf.min[ax]) ? 1 : -1;
+          const room = sg > 0 ? (bf.max[ax] - bd.max[ax]) : (bd.min[ax] - bf.min[ax]);
+          travel = Math.max(0, Math.min(room, sz[ax] * 0.9));
+        }
+        const w = V(); w[ax] = sg * travel;
+        const p0 = door.getWorldPosition(V()), l0 = parent.worldToLocal(p0.clone()), l1 = parent.worldToLocal(p0.clone().add(w));
+        const it = add({ kind: 'slide', label: 'door', moving: [{ o: door, rest: door.position.clone(), delta: l1.sub(l0) }] });
         parent.children.forEach((ch) => ch.traverse((x) => { if (x.isMesh) x.userData.interact = it; }));
       });
 
@@ -3109,11 +3222,30 @@
       this._pct = 0; this.welcomeReady(false);
     }
 
+    enterLiveScene() {
+      const p = document.getElementById('start-page');
+      if (p) {
+        p.classList.add('opacity-0');
+        p.style.pointerEvents = 'none';
+        setTimeout(() => { p.style.display = 'none'; }, 300);
+      }
+      this.setAppState(AppState.EXPLORE);
+    }
+
     hideLoading() {
       const o = document.getElementById('loading-overlay');
       o.classList.add('opacity-0');
       setTimeout(() => o.style.display = 'none', 200);
       this.welcomeReady(true);
+      const q = new URLSearchParams(location.search);
+      const roomParam = q.get('room') || sessionStorage.getItem('iwt.room');
+      if (roomParam) {
+        const code = roomParam.slice(0, 5).toUpperCase();
+        this.enterLiveScene();
+        if (this.mp && !this.mp.live) {
+          this.mp.start('join', code);
+        }
+      }
     }
 
     /* ------------------------------------------------------------------------
@@ -3230,11 +3362,12 @@
         this.playerVelocity.z = 0;
       }
 
+      const floorY = (this.currentLevel && typeof this.currentLevel.floorY === 'number') ? this.currentLevel.floorY : 0;
       const eye = this.currentLevel ? this.currentLevel.eyeHeight : APP_CONFIG.eyeHeight;
       const spd = Math.hypot(this.playerVelocity.x, this.playerVelocity.z);
       this.bobTime += spd * delta * 2.4;
       const bob = APP_CONFIG.headBob ? Math.sin(this.bobTime) * 0.018 * Math.min(1, spd / 2) : 0;
-      currentPos.y = eye + bob;
+      currentPos.y = floorY + eye + bob;
     }
 
     isValidPosition(x, z) {

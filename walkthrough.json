@@ -43,7 +43,7 @@
   "lighting": {
     "preset": "daylight",
     "exposure": 1.1,
-    "rig": 0.35,
+    "rig": 1.0,
     "glbScale": 1
   },
   "rtc": {

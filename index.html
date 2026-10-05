@@ -142,12 +142,12 @@
     #preview-hint { background: var(--ink); color: var(--on-ink); box-shadow: 0 1px 6px rgba(0,0,0,.35); }
     #slideshow.preview-on #preview-canvas, #slideshow.preview-on #preview-hint { display: block; }
     #preview-canvas:active { cursor: grabbing; }
-    #product-callout { width: 20rem; max-height: calc(100vh - 6rem); overflow-y: auto; }
-    #product-callout.callout-docked { left: auto !important; right: 1rem; top: 5rem !important; }
+    #product-callout { width: 23.5rem; max-width: calc(100vw - 2rem); max-height: calc(100vh - 4.5rem); overflow-y: auto; }
+    #product-callout.callout-docked { left: auto !important; right: 1rem; top: 4.5rem !important; }
     @media (max-width: 639px) {
       #product-callout, #product-callout.callout-docked {
         left: 0 !important; right: 0; top: auto !important; bottom: 0;
-        width: 100%; max-height: 78vh;
+        width: 100%; max-height: 82vh;
         border-radius: 1.25rem 1.25rem 0 0; border-bottom: none;
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
@@ -388,15 +388,15 @@
     <svg id="callout-svg" class="absolute inset-0 w-full h-full"><line id="callout-line" stroke="var(--sel)" stroke-width="1.5" stroke-linecap="round"/></svg>
     <div id="callout-dot" class="absolute w-2.5 h-2.5 -ml-[5px] -mt-[5px] rounded-full sel-dot"></div>
     <aside id="product-callout" class="absolute glass-panel rounded-2xl pointer-events-auto">
-      <div id="slideshow" class="relative h-44 bg-neutral-200 overflow-hidden hidden">
+      <div id="slideshow" class="relative h-64 sm:h-72 bg-neutral-100 overflow-hidden hidden rounded-t-2xl">
         <div id="slides" class="flex h-full transition-transform duration-300 ease-out"></div>
         <canvas id="preview-canvas" class="absolute inset-0 w-full h-full cursor-grab touch-none"></canvas>
-        <span id="preview-hint" class="absolute bottom-2 left-2 text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none"><i class="fa-solid fa-rotate mr-1"></i>3D preview · drag to rotate · scroll to zoom</span>
-        <button id="slide-prev" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-neutral-800 text-xs shadow" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
-        <button id="slide-next" class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/90 text-neutral-800 text-xs shadow" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
-        <div id="slide-dots" class="absolute bottom-2 inset-x-0 flex justify-center items-center gap-1.5"></div>
+        <span id="preview-hint" class="absolute bottom-2.5 left-2.5 text-[10px] font-medium px-2 py-0.5 rounded-md pointer-events-none"><i class="fa-solid fa-rotate mr-1"></i>3D preview · drag to rotate · scroll to zoom</span>
+        <button id="slide-prev" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/95 text-neutral-800 text-xs shadow-md flex items-center justify-center hover:bg-white transition" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="slide-next" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/95 text-neutral-800 text-xs shadow-md flex items-center justify-center hover:bg-white transition" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
+        <div id="slide-dots" class="absolute bottom-2.5 inset-x-0 flex justify-center items-center gap-1.5"></div>
       </div>
-      <div class="p-3.5 space-y-2.5">
+      <div class="p-4 space-y-3">
         <div class="flex items-center justify-between gap-2">
           <span class="inline-flex items-center gap-1.5 min-w-0 text-[10px] font-semibold uppercase tracking-wider sel-chip rounded-md px-2 py-1">
             <span class="w-1.5 h-1.5 rounded-full sel-bg shrink-0"></span><span id="obj-category" class="truncate">Category</span>
@@ -419,9 +419,38 @@
           <span id="obj-sku" class="font-mono"></span><span id="obj-maker"></span><span id="obj-dims" class="font-mono"></span>
         </div>
         <button id="anim-btn" class="hidden w-full py-2 px-3 sel-chip font-medium text-xs rounded-lg items-center justify-center gap-1.5" aria-label="Play animation"><i id="anim-icon" class="fa-solid fa-play text-xs"></i><span id="anim-label">Play animation</span></button>
-        <div class="flex gap-2 pt-0.5">
-          <button id="focus-obj-btn" class="flex-1 py-2 px-3 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs rounded-lg flex items-center justify-center gap-1.5"><i class="fa-solid fa-crosshairs text-xs"></i> Focus Camera</button>
-          <button id="deselect-obj-btn" class="py-2 px-4 bg-white hover:bg-neutral-100 text-neutral-800 font-medium text-xs rounded-lg border border-neutral-300">Return</button>
+
+        <!-- Focus & Camera Zoom Controls -->
+        <div class="pt-2 border-t border-neutral-200/80 space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-medium text-neutral-700">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-camera text-neutral-400 text-xs"></i> Camera Focus</span>
+            <span id="focus-distance-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 font-mono text-neutral-600 font-semibold">Close (0.45m)</span>
+          </div>
+
+          <!-- Quick Step Preset Buttons -->
+          <div class="grid grid-cols-3 gap-1.5 text-[10px] font-medium">
+            <button type="button" id="focus-step-macro" class="py-1 px-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-center transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-magnifying-glass-plus text-[9px]"></i> Macro
+            </button>
+            <button type="button" id="focus-step-close" class="py-1 px-1.5 rounded-lg bg-neutral-900 text-white text-center transition flex items-center justify-center gap-1 shadow-sm">
+              <i class="fa-solid fa-bullseye text-[9px]"></i> Close
+            </button>
+            <button type="button" id="focus-step-room" class="py-1 px-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-center transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-arrows-to-eye text-[9px]"></i> Room
+            </button>
+          </div>
+
+          <!-- Fine Focus Distance Slider -->
+          <div class="flex items-center gap-2 pt-0.5">
+            <i class="fa-solid fa-magnifying-glass-minus text-[10px] text-neutral-400"></i>
+            <input type="range" id="focus-slider" min="0.25" max="2.0" step="0.05" value="0.45" class="w-full accent-neutral-900 cursor-pointer h-1.5 bg-neutral-200 rounded-lg" title="Adjust camera focus distance">
+            <i class="fa-solid fa-magnifying-glass-plus text-[10px] text-neutral-400"></i>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button id="focus-obj-btn" class="flex-1 py-2 px-3 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.99] transition"><i class="fa-solid fa-crosshairs text-xs"></i> Focus Camera</button>
+          <button id="deselect-obj-btn" class="py-2 px-4 bg-white hover:bg-neutral-100 text-neutral-800 font-medium text-xs rounded-xl border border-neutral-300 active:scale-[0.99] transition">Return</button>
         </div>
       </div>
     </aside>
@@ -566,15 +595,16 @@
     slate:    { name:'Slate',    bg:'#dfe6ee', surface:'#ffffff', surface2:'#eff3f8', text:'#0f1b2d', muted:'#586a80', border:'#d3dce8', ink:'#12233f', 'on-ink':'#ffffff' }
   };
   const LIGHT_PRESETS = {
-    daylight: { amb:0.3,  sun:1.5, fill:0.6, color:0xfff8ee },
-    warm:     { amb:0.25, sun:1.2, fill:0.9, color:0xffd9a8 },
-    cool:     { amb:0.3,  sun:1.3, fill:0.5, color:0xdfeaff },
-    studio:   { amb:0.4,  sun:1.0, fill:0.9, color:0xffffff }
+    exhibition: { amb:0.75, sun:1.2, fill:0.55, color:0xfffbf5 },
+    daylight:   { amb:0.4,  sun:1.4, fill:0.6,  color:0xfff8ee },
+    warm:       { amb:0.25, sun:1.2, fill:0.9,  color:0xffd9a8 },
+    cool:       { amb:0.3,  sun:1.3, fill:0.5,  color:0xdfeaff },
+    studio:     { amb:0.4,  sun:1.0, fill:0.9,  color:0xffffff }
   };
   const DEFAULT_SETTINGS = {
     theme:'minimal', outlineColor:'#ff4d2e', selColor:'#ff4d2e', selStrength:0.3,
     reticleShape:'dot', reticleColor:'#171717', reticleSize:6,
-    lightPreset:'daylight', exposure:1.0, reflections:0.6, spotlight:true, emission:1, rotateSelected:false, avatarStyle:'classic', ttsVoice:'google-hindi', ttsRate:1, ttsPitch:1, glbLights:true, glbLightScale:1, shadows:true,
+    lightPreset:'daylight', exposure:1.05, reflections:0.6, spotlight:true, emission:1, rotateSelected:false, avatarStyle:'classic', ttsVoice:'google-hindi', ttsRate:1, ttsPitch:1, glbLights:true, glbLightScale:1, shadows:true,
     fov:65, walkSpeed:3.2, look:1, headBob:true, quality:'high'
   };
   const INDIAN_LANG = /^(en-in|hi|te|ta|kn|ml|bn|mr|gu|pa|or|as|ur)(-|$)/i;
@@ -590,7 +620,7 @@
       { k:'reticleColor', t:'color', l:'Reticle color', p:['#171717','#ffffff','#ff4d2e','#16a34a'] },
       { k:'reticleSize', t:'range', l:'Reticle size', min:3, max:14, step:1 } ]},
     { sec:'Lighting', items:[
-      { k:'lightPreset', t:'seg', l:'Preset', o:[['daylight','Day'],['warm','Warm'],['cool','Cool'],['studio','Studio']] },
+      { k:'lightPreset', t:'seg', l:'Preset', o:[['exhibition','Exhibition'],['daylight','Day'],['warm','Warm'],['cool','Cool'],['studio','Studio']] },
       { k:'exposure', t:'range', l:'Brightness', min:0.5, max:2, step:0.05 },
       { k:'reflections', t:'range', l:'Soft reflections', min:0, max:2, step:0.05 },
       { k:'spotlight', t:'seg', l:'Product spotlight', o:onOff },
@@ -1385,6 +1415,23 @@
       architecturalFill.position.set(-3, 3.2, -2);
       this.scene.add(architecturalFill); this.rig.fill = architecturalFill;
 
+      // Exhibition downlights (lightweight, non-shadow spotlights that wash the back wall and displays like the real photo)
+      this.rig.downlights = [];
+      const downlightDefs = [
+        { x: -3.5, y: 3.6, z: -5.0, tx: -3.5, ty: 0.8, tz: -5.9 }, // Back wall left poster
+        { x:  0.6, y: 3.6, z: -5.0, tx:  0.6, ty: 0.8, tz: -5.9 }, // Back wall center logo/pipes
+        { x:  4.5, y: 3.6, z: -5.0, tx:  4.5, ty: 0.8, tz: -5.9 }, // Back wall right poster
+        { x:  5.2, y: 3.6, z: -2.0, tx:  6.0, ty: 0.8, tz: -2.0 }  // Right side wall posters
+      ];
+      downlightDefs.forEach(def => {
+        const sl = new THREE.SpotLight(0xfffae8, 0, 7.5, 0.65, 0.85, 1.3);
+        sl.position.set(def.x, def.y, def.z);
+        sl.target.position.set(def.tx, def.ty, def.tz);
+        sl.castShadow = false; // Zero shadow pass overhead: runs smoothly on any mobile device
+        this.scene.add(sl, sl.target);
+        this.rig.downlights.push(sl);
+      });
+
       // Soft spotlight that fades in over the selected product (always in the scene at 0 so no shader recompiles)
       const spot = new THREE.SpotLight(0xfff4e0, 0, 12, 0.55, 0.9, 1);
       this.scene.add(spot, spot.target); this.rig.spot = spot;
@@ -2118,6 +2165,7 @@
         this.deselectProduct(true);
       }
 
+      this.hideFocusOutline = false;
       const product = productRoot.userData.product;
       this.selectedProduct = product;
       this.selectedInitialSnapshot = this.captureTransformSnapshot(productRoot);
@@ -2148,6 +2196,7 @@
     deselectProduct(restoreTransform = true) {
       if (!this.selectedProduct) return;
 
+      this.hideFocusOutline = false;
       const modelRoot = this.selectedProduct.modelRoot;
       this.stopAnim(this.selectedProduct);
 
@@ -2286,7 +2335,9 @@
       const ui = this.ui;
       let root = null, hovering = false, label = '';
       if (this.currentState === AppState.INSPECT && this.selectedProduct) {
-        root = this.selectedProduct.modelRoot;
+        if (!this.hideFocusOutline) {
+          root = this.selectedProduct.modelRoot;
+        }
       } else if (this.currentState === AppState.EXPLORE && this.pointerControls.isLocked) {
         root = this.pickProduct(0, 0);
         hovering = !!root;
@@ -2304,9 +2355,14 @@
     /* ------------------------------------------------------------------------
        Inspection Camera Framing ("Focus Camera")
        ------------------------------------------------------------------------ */
-    focusCameraOnProduct() {
+    focusCameraOnProduct(customDist) {
       if (!this.selectedProduct) return;
       const root = this.selectedProduct.modelRoot;
+
+      // Disable outline and selection color tint on camera focus for true product inspection
+      this.hideFocusOutline = true;
+      this.setOutlineRoot(null);
+      this.untint();
 
       _box.setFromObject(root);
       const center = new THREE.Vector3();
@@ -2316,14 +2372,27 @@
 
       const maxDim = Math.max(size.x, size.y, size.z);
       const fovRad = this.camera.fov * (Math.PI / 180);
-      let dist = (maxDim / 2) / Math.tan(fovRad / 2);
-      dist = Math.max(dist * 1.5, 1.4);
+      let dist;
+      if (typeof customDist === 'number' && Number.isFinite(customDist)) {
+        dist = customDist;
+      } else {
+        // Close focus framing: 0.35m - 0.55m for small pipe fittings and connectors, instead of far 1.4m!
+        dist = Math.max((maxDim / 2) / Math.tan(fovRad / 2) * 1.05, Math.min(maxDim * 1.6, 0.48));
+        dist = Math.max(dist, 0.35);
+      }
+
+      // Sync slider and badge
+      const sld = document.getElementById('focus-slider');
+      const bdg = document.getElementById('focus-distance-badge');
+      if (sld) sld.value = dist.toFixed(2);
+      if (bdg) bdg.textContent = `${dist < 0.4 ? 'Macro' : dist < 0.8 ? 'Close' : 'Room'} (${dist.toFixed(2)}m)`;
 
       const dir = new THREE.Vector3().subVectors(this.camera.position, center).setY(0).normalize();
       if (dir.lengthSq() < 0.001) dir.set(0, 0, 1);
 
       const targetPos = new THREE.Vector3().copy(center).add(dir.multiplyScalar(dist));
-      targetPos.y = Math.max(center.y + (size.y * 0.2), (this.currentLevel ? this.currentLevel.eyeHeight : APP_CONFIG.eyeHeight) * 0.85);
+      // Ergonomic vertical alignment: match the product's center height with subtle top-view tilt
+      targetPos.y = center.y + Math.max(size.y * 0.15, 0.06);
 
       this.cameraAnim.active = true;
       this.cameraAnim.startPos.copy(this.camera.position);
@@ -2556,7 +2625,47 @@
 
       document.getElementById('close-inspector-btn').addEventListener('click', () => this.deselectProduct(true));
       document.getElementById('deselect-obj-btn').addEventListener('click', () => this.deselectProduct(true));
-      document.getElementById('focus-obj-btn').addEventListener('click', this.focusCameraOnProduct.bind(this));
+      
+      document.getElementById('focus-obj-btn').addEventListener('click', () => {
+        const sld = document.getElementById('focus-slider');
+        const customDist = sld ? parseFloat(sld.value) : undefined;
+        this.focusCameraOnProduct(customDist);
+      });
+
+      // Focus Slider & Step Buttons
+      const focusSlider = document.getElementById('focus-slider');
+      const focusBadge = document.getElementById('focus-distance-badge');
+      const stepMacro = document.getElementById('focus-step-macro');
+      const stepClose = document.getElementById('focus-step-close');
+      const stepRoom = document.getElementById('focus-step-room');
+
+      const setFocusStep = (d, activeBtn) => {
+        if (focusSlider) focusSlider.value = d;
+        if (focusBadge) focusBadge.textContent = `${d < 0.4 ? 'Macro' : d < 0.8 ? 'Close' : 'Room'} (${d.toFixed(2)}m)`;
+        [stepMacro, stepClose, stepRoom].forEach(b => {
+          if (!b) return;
+          const on = b === activeBtn;
+          b.className = on
+            ? 'py-1 px-1.5 rounded-lg bg-neutral-900 text-white text-center transition flex items-center justify-center gap-1 shadow-sm'
+            : 'py-1 px-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-center transition flex items-center justify-center gap-1';
+        });
+        this.focusCameraOnProduct(d);
+      };
+
+      if (stepMacro) stepMacro.addEventListener('click', () => setFocusStep(0.32, stepMacro));
+      if (stepClose) stepClose.addEventListener('click', () => setFocusStep(0.48, stepClose));
+      if (stepRoom)  stepRoom.addEventListener('click',  () => setFocusStep(1.25, stepRoom));
+
+      if (focusSlider) {
+        focusSlider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (focusBadge) focusBadge.textContent = `${val < 0.4 ? 'Macro' : val < 0.8 ? 'Close' : 'Room'} (${val.toFixed(2)}m)`;
+          [stepMacro, stepClose, stepRoom].forEach(b => {
+            if (b) b.className = 'py-1 px-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-center transition flex items-center justify-center gap-1';
+          });
+          this.focusCameraOnProduct(val);
+        });
+      }
 
       // Help Modal
       const helpModal = document.getElementById('help-modal');
@@ -2722,32 +2831,45 @@
         parent.children.forEach((c) => c.traverse((x) => { if (x.isMesh) x.userData.interact = it; }));
       });
 
-      // 2) hinged door leaf ("SM_Door"): swings on the edge nearest the frame end, away from the room centre
+      // 2) Sliding door leaf ("SM_Door"): slides smoothly along its rail track over the fixed panel
       meshes.filter((m) => /^SM_Door(_\d+)?$/.test(m.name) && m.parent && m.parent.children.some((c) => /Frame/.test(c.name)) && !m.children.some((c) => /Frame/.test(c.name)) && !isProd(m)).forEach((door) => {
         const parent = door.parent, frame = parent.children.find((c) => /Frame/.test(c.name)) || parent;
         const cl = clipsFor(parent); if (cl.length) { clipItem(parent, 'door', cl); return; }
-        if (!level.hingedDoors) {   // DEFAULT: the leaf slides along its frame (over the fixed panel), like the windows
-          const fl = localBox(parent, frame), dl = localBox(parent, door), sz = dl.getSize(V());
-          const upL = Y.clone().applyQuaternion(parent.getWorldQuaternion(new THREE.Quaternion()).invert()), vi = ['x', 'y', 'z'].reduce((p, c) => (Math.abs(upL[c]) > Math.abs(upL[p]) ? c : p), 'x');
-          const hz = ['x', 'y', 'z'].filter((c) => c !== vi), ax0 = sz[hz[0]] >= sz[hz[1]] ? hz[0] : hz[1], dp0 = hz[0] === ax0 ? hz[1] : hz[0];
-          const fixed = parent.children.find((c) => c !== door && /Fixed/.test(c.name)), c0 = dl.getCenter(V());
-          const sg = fixed ? (Math.sign(localBox(parent, fixed).getCenter(V())[ax0] - c0[ax0]) || 1) : ((fl.max[ax0] - dl.max[ax0]) >= (dl.min[ax0] - fl.min[ax0]) ? 1 : -1);
-          const room = sg > 0 ? fl.max[ax0] - dl.max[ax0] : dl.min[ax0] - fl.min[ax0];
-          const rcL = parent.worldToLocal((level.roomBounds ? level.roomBounds.getCenter(V()) : wbox(root).getCenter(V())).clone());
-          const w0 = V(); w0[ax0] = sg * Math.max(0, Math.min(room, sz[ax0] * 0.95)); w0[dp0] = (Math.sign(rcL[dp0] - c0[dp0]) || 1) * sz[dp0] * 1.1;   // a rail's depth apart, so it clears the fixed panel
-          const it0 = add({ kind: 'slide', label: 'door', moving: [{ o: door, rest: door.position.clone(), delta: w0 }] });
-          parent.children.forEach((ch) => ch.traverse((x) => { if (x.isMesh) x.userData.interact = it0; }));
-          return;
+
+        const fl = localBox(parent, frame), dl = localBox(parent, door);
+        const fsz = fl.getSize(V()), dsz = dl.getSize(V());
+
+        // Frame dimensions in parent local space:
+        // - Smallest frame dimension = frame thickness / wall depth (never slide along it)
+        // - Largest frame dimension = door height (never slide along it)
+        // - Remaining middle dimension = strictly the horizontal sliding rail axis
+        const dims = ['x', 'y', 'z'];
+        const thinAxis = dims.reduce((p, c) => fsz[c] < fsz[p] ? c : p, 'x');
+        const heightAxis = dims.reduce((p, c) => fsz[c] > fsz[p] ? c : p, 'x');
+        const railAxis = dims.find((c) => c !== thinAxis && c !== heightAxis) || 'x';
+
+        // Slide towards the fixed panel (e.g. SM_FixedDoor) if present, otherwise towards side with clearance
+        const fixed = parent.children.find((c) => c !== door && /Fixed/i.test(c.name));
+        const c0 = dl.getCenter(V());
+        let sg = 1;
+        if (fixed) {
+          const fc = localBox(parent, fixed).getCenter(V());
+          sg = Math.sign(fc[railAxis] - c0[railAxis]) || 1;
+        } else {
+          sg = (fl.max[railAxis] - dl.max[railAxis]) >= (dl.min[railAxis] - fl.min[railAxis]) ? 1 : -1;
         }
-        const bd = wbox(door), bf = wbox(frame), size = bd.getSize(V()), ax = size.x >= size.z ? 'x' : 'z';
-        const atLo = Math.abs(bd.min[ax] - bf.min[ax]) <= Math.abs(bd.max[ax] - bf.max[ax]);
-        const P = bd.getCenter(V()), free = P.clone(); P[ax] = atLo ? bd.min[ax] : bd.max[ax]; free[ax] = atLo ? bd.max[ax] : bd.min[ax]; P.y = bd.min.y;
-        const rel = free.sub(P).setY(0), c = level.roomBounds ? level.roomBounds.getCenter(V()) : wbox(root).getCenter(V()); c.y = 0;
-        const sw = (k) => P.clone().add(rel.clone().applyAxisAngle(Y, k * Math.PI / 2)).setY(0).distanceTo(c), sgn = sw(1) >= sw(-1) ? 1 : -1;
-        const pivot = new THREE.Object3D(); parent.add(pivot); pivot.position.copy(parent.worldToLocal(P.clone())); pivot.updateMatrixWorld(true); pivot.attach(door);
-        const up = Y.clone().applyQuaternion(parent.getWorldQuaternion(new THREE.Quaternion()).invert());
-        const it = add({ kind: 'hinge', label: 'door', pivot, up, ang: sgn * Math.PI * 0.55 });
-        parent.children.forEach((ch) => ch.traverse((x) => { if (x.isMesh) x.userData.interact = it; }));
+
+        const room = sg > 0 ? (fl.max[railAxis] - dl.max[railAxis]) : (dl.min[railAxis] - fl.min[railAxis]);
+        const travel = sg * Math.max(0, Math.min(room, dsz[railAxis] * 0.95));
+
+        const delta = V();
+        delta[railAxis] = travel;
+        // Strictly 0 offset in thickness and height: door remains perfectly flush and seated in its rail
+        delta[thinAxis] = 0;
+        delta[heightAxis] = 0;
+
+        const it0 = add({ kind: 'slide', label: 'door', moving: [{ o: door, rest: door.position.clone(), delta }] });
+        parent.children.forEach((ch) => ch.traverse((x) => { if (x.isMesh) x.userData.interact = it0; }));
       });
 
       // 3) seats + 4) automatic colliders for furniture
@@ -3093,6 +3215,7 @@
     }
 
     closeInspectorUI() {
+      this.hideFocusOutline = false;
       this.ui.root.classList.add('hidden');
       this.stopSlides();
       this.hidePreview();
@@ -3185,7 +3308,7 @@
       const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(3, 4, 5);
       const rim = new THREE.DirectionalLight(0xbcd0ff, 0.6); rim.position.set(-4, 2, -3);
       sc.add(key, rim, new THREE.AmbientLight(0xffffff, 0.2));
-      const pivot = new THREE.Group(); pivot.rotation.order = 'YXZ'; sc.add(pivot);
+      const pivot = new THREE.Group(); sc.add(pivot);
       const c = document.createElement('canvas'); c.width = c.height = 128;
       const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64);
       gr.addColorStop(0, 'rgba(0,0,0,0.45)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128);
@@ -3200,40 +3323,30 @@
       holo.add(disc, ringA, ringB); sc.add(holo);
       const cone = add(new THREE.CylinderGeometry(0.9, 1.15, 2.2, 48, 1, true), { opacity: 0.07, color: 0x7dd3fc });
       cone.rotation.x = Math.PI / 2; cone.position.z = 1.1; holo.add(cone);
-      const P = this.preview = { holo, ringB, disc, r, sc, cam: new THREE.PerspectiveCamera(32, 2, 0.01, 100), pivot, floor, active: false, yaw: 0.6, pitch: 0.12, drag: false, idle: 0, last: { x: 0, y: 0 } };
-      // Drag = yaw + a limited tilt (so the product can never end up upside down)
+      const P = this.preview = { holo, ringB, disc, r, sc, cam: new THREE.PerspectiveCamera(32, 2, 0.01, 100), pivot, floor, active: false, yaw: 0.5, pitch: 0.22, drag: false, idle: 0, last: { x: 0, y: 0 } };
+      // Drag = yaw + vertical elevation orbit without Euler roll or inversion
       ['pointerdown', 'mousedown', 'touchstart'].forEach((ev) => cv.addEventListener(ev, (e) => e.stopPropagation(), { passive: true }));
-      /* ---- previous (limited) drag handlers, kept for reference; replaced by the free-orbit block below ----
-      cv.addEventListener('pointerdown', (e) => { P.drag = true; P.last = { x: e.clientX, y: e.clientY }; try { cv.setPointerCapture(e.pointerId); } catch (_) {} });
-      cv.addEventListener('pointermove', (e) => {
-        if (!P.drag) return;
-        P.yaw += (e.clientX - P.last.x) * 0.012;
-        P.pitch = THREE.MathUtils.clamp(P.pitch + (e.clientY - P.last.y) * 0.006, -0.3, 0.6);
-        P.last = { x: e.clientX, y: e.clientY }; P.idle = 0;
-      });
-      ['pointerup', 'pointercancel'].forEach((ev) => cv.addEventListener(ev, () => { P.drag = false; P.idle = 0; }));
-      ---- end of previous handlers ---- */
-      /* Free orbit: horizontal = unlimited spin, vertical = about +/-75 degrees (look at the top and the underside).
+      /* Free orbit: horizontal = unlimited spin, vertical = +/-68 degrees elevation (look at top and underside).
          Targets (ty/tp/tz) are eased every frame, a flick keeps gliding, wheel / pinch zooms, double-click or double-tap resets. */
       const clamp = THREE.MathUtils.clamp, ptrs = new Map(); let pinch = 0, lastT = 0;
-      Object.assign(P, { ty: 0.6, tp: 0.12, tz: 1, zoom: 1, vx: 0, dist: 4 });
+      Object.assign(P, { ty: 0.5, tp: 0.22, tz: 1, zoom: 1, vx: 0, dist: 4 });
       cv.addEventListener('pointerdown', (e) => {
         ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); try { cv.setPointerCapture(e.pointerId); } catch (_) {}
         P.drag = true; P.vx = 0; P.last = { x: e.clientX, y: e.clientY }; lastT = performance.now(); pinch = 0;
-        if (e.pointerType === 'touch' && lastT - (P.tapT || 0) < 300) { P.ty = 0.6; P.tp = 0.12; P.tz = 1; }   // double-tap reset
+        if (e.pointerType === 'touch' && lastT - (P.tapT || 0) < 300) { P.ty = 0.5; P.tp = 0.22; P.tz = 1; }   // double-tap reset
         P.tapT = lastT;
       });
       cv.addEventListener('pointermove', (e) => {
         if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
         if (ptrs.size >= 2) { const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch) P.tz = clamp(P.tz * (pinch / d), 0.55, 1.8); pinch = d; P.idle = 0; return; }
         const now = performance.now(), dt = Math.max(0.008, (now - lastT) / 1000), dx = e.clientX - P.last.x, dy = e.clientY - P.last.y; lastT = now;
-        P.ty += dx * 0.012; P.tp = clamp(P.tp + dy * 0.008, -1.3, 1.3);
-        P.vx = clamp(P.vx + (dx * 0.012 / dt - P.vx) * 0.4, -8, 8);
+        P.ty -= dx * 0.01; P.tp = clamp(P.tp - dy * 0.008, -1.2, 1.2);
+        P.vx = clamp(P.vx + (-dx * 0.01 / dt - P.vx) * 0.4, -8, 8);
         P.last = { x: e.clientX, y: e.clientY }; P.idle = 0;
       });
       ['pointerup', 'pointercancel'].forEach((ev) => cv.addEventListener(ev, (e) => { ptrs.delete(e.pointerId); pinch = 0; if (!ptrs.size) { P.drag = false; if (performance.now() - lastT > 90) P.vx = 0; } P.idle = 0; }));
       cv.addEventListener('wheel', (e) => { e.preventDefault(); P.tz = clamp(P.tz * (e.deltaY > 0 ? 1.1 : 0.9), 0.55, 1.8); P.idle = 0; }, { passive: false });
-      cv.addEventListener('dblclick', () => { P.ty = 0.6; P.tp = 0.12; P.tz = 1; P.vx = 0; });
+      cv.addEventListener('dblclick', () => { P.ty = 0.5; P.tp = 0.22; P.tz = 1; P.vx = 0; });
     }
 
     showPreview() {
@@ -3286,9 +3399,9 @@
       } P.pivot.scale.setScalar(1 / rad);
       P.holo.position.y = -(sz.y / 2) / rad - 0.01; P.holo.scale.setScalar(Math.max(0.55, Math.max(sz.x, sz.z) / rad * 0.95));
       P.floor.position.y = -(sz.y / 2) / rad; P.floor.scale.setScalar(Math.max(sz.x, sz.z) / rad * 1.5);
-      P.cam.position.set(0, 0.4, 0.95 / Math.sin(THREE.MathUtils.degToRad(P.cam.fov / 2))); P.cam.lookAt(0, -0.05, 0);
-      P.yaw = 0.6; P.pitch = 0.12; P.idle = 9; P.active = true;
-      P.ty = 0.6; P.tp = 0.12; P.tz = P.zoom = 1; P.vx = 0; P.dist = 0.95 / Math.sin(THREE.MathUtils.degToRad(P.cam.fov / 2));
+      P.cam.position.set(0, 0.35, 0.84 / Math.sin(THREE.MathUtils.degToRad(P.cam.fov / 2))); P.cam.lookAt(0, -0.05, 0);
+      P.yaw = 0.5; P.pitch = 0.22; P.idle = 9; P.active = true;
+      P.ty = 0.5; P.tp = 0.22; P.tz = P.zoom = 1; P.vx = 0; P.dist = 0.84 / Math.sin(THREE.MathUtils.degToRad(P.cam.fov / 2));
     }
 
     hidePreview() {
@@ -3299,13 +3412,16 @@
     renderPreview(dt) {
       const P = this.preview;
       P.idle += dt;
-      /* old version (instant, limited tilt):  if (!P.drag && P.idle > 1.5) P.yaw += dt * 0.6;  P.pivot.rotation.set(P.pitch, P.yaw, 0); */
       const k = 1 - Math.exp(-14 * dt);
       if (!P.drag) { P.ty += P.vx * dt; P.vx *= Math.exp(-3.5 * dt); }                       // glide after a flick
-      if (!P.drag && P.idle > 1.5 && Math.abs(P.vx) < 0.05) P.ty += dt * 0.6;              // gentle turntable once the user lets go
+      if (!P.drag && P.idle > 1.5 && Math.abs(P.vx) < 0.05) P.ty -= dt * 0.4;              // gentle turntable orbit when idle
       P.yaw += (P.ty - P.yaw) * k; P.pitch += (P.tp - P.pitch) * k; P.zoom += (P.tz - P.zoom) * k;
-      P.pivot.rotation.set(P.pitch, P.yaw, 0);
-      P.cam.position.set(0, 0.4, P.dist * P.zoom); P.cam.lookAt(0, -0.05, 0);
+
+      const d = P.dist * P.zoom;
+      const cosP = Math.cos(P.pitch);
+      const sinP = Math.sin(P.pitch);
+      P.cam.position.set(d * Math.sin(P.yaw) * cosP, -0.05 + d * sinP, d * Math.cos(P.yaw) * cosP);
+      P.cam.lookAt(0, -0.05, 0);
       if (P.mixer) P.mixer.update(dt);
       P.t = (P.t || 0) + dt; P.ringB.rotation.z -= dt * 0.8; P.disc.material.opacity = 0.14 + Math.sin(P.t * 2) * 0.04;
       P.r.render(P.sc, P.cam);
@@ -3649,7 +3765,7 @@
       this.applyLighting();
     }
 
-    /* Built-in rig (ambient + sun + fill) + any lights authored inside the GLB.
+    /* Built-in rig (ambient + sun + fill + exhibition downlights) + any lights authored inside the GLB.
        When the GLB has its own lights the built-in rig is dimmed so the designer's lighting leads. */
     applyLighting() {
       const s = this.settings, rg = this.rig, lv = this.currentLevel;
@@ -3660,10 +3776,30 @@
       rg.amb.intensity = p.amb * k; rg.sun.intensity = p.sun * k; rg.fill.intensity = p.fill * k;
       rg.sun.color.set(p.color); rg.fill.color.set(p.color);
       rg.sun.castShadow = s.shadows;
-      this.scene.traverse((o) => { if (o.isMesh && o.material) [].concat(o.material).forEach((m) => { if (!m || !m.isMeshStandardMaterial) return; m.envMapIntensity = s.reflections;
-        if (m.userData.tint) return;
-        if (m.userData.emiBase === undefined) m.userData.emiBase = (m.emissiveMap || m.emissive.r + m.emissive.g + m.emissive.b > 0) ? m.emissiveIntensity : -1;
-        if (m.userData.emiBase >= 0) m.emissiveIntensity = m.userData.emiBase * s.emission; }); });
+
+      // Exhibition downlights wash the walls cleanly with zero shadow overhead
+      if (rg.downlights) {
+        const dlOn = s.lightPreset === 'exhibition' || s.lightPreset === 'daylight';
+        rg.downlights.forEach(dl => {
+          dl.visible = dlOn;
+          dl.intensity = dlOn ? (1.5 * k) : 0;
+        });
+      }
+
+      this.scene.traverse((o) => {
+        if (o.isMesh && o.material) [].concat(o.material).forEach((m) => {
+          if (!m || !m.isMeshStandardMaterial) return;
+          m.envMapIntensity = s.reflections;
+          if (m.userData.tint) return;
+          if (m.name === 'M_LightEmissive' || (m.userData && m.userData.origName === 'M_LightEmissive')) {
+            m.emissive.set(0xfff5d6);
+            m.emissiveIntensity = 2.6 * s.emission;
+          } else {
+            if (m.userData.emiBase === undefined) m.userData.emiBase = (m.emissiveMap || m.emissive.r + m.emissive.g + m.emissive.b > 0) ? m.emissiveIntensity : -1;
+            if (m.userData.emiBase >= 0) m.emissiveIntensity = m.userData.emiBase * s.emission;
+          }
+        });
+      });
       gl.forEach((l) => { l.visible = s.glbLights; l.intensity = l.userData.base * s.glbLightScale * (L.glbScale || 1); });
     }
 

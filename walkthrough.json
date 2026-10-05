@@ -1,23 +1,28 @@
 {
   "title": "Sudhakar Stall",
   "welcome": {
-    "eyebrow": "Welcome to",
+    "eyebrow": "SUDHAKAR GROUP • EST. 1971",
     "title": "Sudhakar Pipes & Fittings",
-    "tagline": "Quality PVC pipes, garden fittings & plumbing essentials",
-    "message": "Step inside our 3D showroom. Walk around, open the doors, take a seat, and click any product to see its price and details. Invite a friend to explore with you using voice chat.",
+    "tagline": "Pioneers in Piping Systems • 50+ Years of Manufacturing Excellence",
+    "message": "Step inside our 3D Exhibition Pavilion. Walk around, inspect precision-engineered pipes, fittings & valves in 360° with pricing and audio narration, and explore with teammates using spatial voice chat.",
     "highlights": [
-      "Walk-through 3D",
-      "Live product preview",
-      "Voice chat"
+      "50+ Years of Trust",
+      "ISO 9001:2015 Certified",
+      "3,500+ Dealer Touchpoints",
+      "Interactive 3D Walkthrough",
+      "Spatial Voice Chat"
     ],
-    "button": "Enter the Showroom",
+    "button": "Enter 3D Pavilion",
     "categories": [
       "Garden Pipes",
       "PVC Connectors",
       "Ball Valves",
-      "Clamps",
-      "Fittings"
-    ]
+      "CPVC & uPVC",
+      "Pipe Clamps",
+      "SWR Fittings"
+    ],
+    "contact": "sudhakarind.com",
+    "footer": "© Sudhakar Group of Industries • 3D Exhibition Pavilion"
   },
   "glb": "scene/scene.glb",
   "startCamera": "Main Camera",

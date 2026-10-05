@@ -95,6 +95,7 @@ So you can ship a catalogue immediately and add photos later, product by product
 | `lighting` | See below |
 | `welcome` | Wording of the start screen (see *Start screen* below) |
 | `rtc` | Optional: `iceServers` (TURN) and `peer` (your own signalling server) for voice chat |
+| `hingedDoors` | `true` brings back the old swinging door. Default `false`: the door slides like the windows |
 | `autoColliders` | `false` turns off the automatic furniture colliders |
 | `voiceLang` | Default narration language, e.g. `en-IN` (default), `hi-IN`, `te-IN` |
 | `products[]` | `node`, `name`, `tag`, `price`, `description`, `images[]`, `narration`, `sku`, `maker`, plus optional `narrationLang`, `audio`, `animation`, `animationLoop` |
@@ -151,8 +152,8 @@ Nothing to configure: the app finds them by name when the GLB loads.
 
 | What | How it is detected | Behaviour |
 |---|---|---|
-| Sliding window / door / vertical window | Sibling panels named `…Door_01`, `…Door_02` or `…Window_01`, `…Window_02` next to a `…Frame` | The last panel slides over the first, along its frame, in whichever direction the panels are laid out |
-| Hinged door | A node named `SM_Door` inside a group that has a `…Frame` | Swings about 100° on the hinge edge nearest the frame, away from the room |
+| Sliding window / door / vertical window | Sibling panels named `…Door_01`, `…Door_02` or `…Window_01`, `…Window_02` next to a `…Frame` | The last panel slides over the first **along its own rail**, so rotated (diagonal) windows work too. The panel can never leave its frame |
+| Door leaf (`SM_Door`) | A node named `SM_Door` inside a group that has a `…Frame` | Slides along its frame over the fixed panel, like the windows. (`"hingedDoors": true` gives the old swinging door) |
 | Seats | Nodes starting with `SM_Chair`, `SingleSofa`, `Sofa` | Click to sit; W A S D or the *Stand up* button to leave |
 | Colliders | `SM_Table`, `RoundTable`, `Table`, `SM_Rack`, `SM_PlanterBox`, plus the seats | Walk around them. If you spawn inside one you can still walk out |
 
@@ -162,38 +163,67 @@ Turn off the automatic colliders with `"autoColliders": false`. You can still li
 
 ## 🤖 Characters (Classic or Cute robot)
 
-Pick the look of your avatar in **Settings → Multiplayer character**, or in the multiplayer window (people icon). Everyone in the room sees the character you chose, and you can switch at any time.
+Pick the look of your avatar (**Classic**, **Cute robot** or **Hover bot**) in **Settings → Multiplayer character**, or in the multiplayer window (people icon). Everyone in the room sees the character you chose, and you can switch at any time.
 
 | Character | Look |
 |---|---|
 | **Classic** (default) | The original human-style avatar |
+| **Hover bot** | A robot **without legs or hands**: a floating bean body with a dome head, glowing visor, antenna and a soft glow underneath. Bobs gently, and sits on seats |
 | **Cute robot** | Bean-shaped body, small dome head with a glowing visor and antenna, stubby legs, round mitten hands. Blinks, glows and the antenna pulses while talking, bounces slightly when walking |
 
 ## 👥 Multiplayer and voice chat
 
 Click the **people icon** in the header, then **Create a room** (or enter a friend's 5-letter code and **Join**). *Copy invite link* gives a URL such as `…/?room=K4P9X` that opens the join box for the visitor.
 
-- Avatars show each person's name and colour, walk, and sit when they sit.
+- Avatars show each person's name and colour, walk, and sit when they sit. They stand on the real floor height of your model, not at a fixed y = 0.
+- **Invite links** (`…/?room=K4P9X`) skip the start page: the visitor lands directly in the live showroom with the join box open.
 - A glowing ring under an avatar shows who is talking.
 - Voices are **3D**: quieter with distance and coming from the speaker's direction. Use headphones.
 - A room works well for about 6 people, since everyone connects directly to everyone.
 
 **How it works:** free **WebRTC** through [PeerJS](https://peerjs.com). The free PeerJS cloud only introduces people to each other; audio and positions go directly between browsers. No server of yours is involved. The microphone needs **HTTPS**, which GitHub Pages provides.
 
-**Limits to know about**
-- On some strict networks (some mobile carriers, corporate Wi-Fi) a direct connection is impossible and a **TURN relay** is needed. Add one in `walkthrough.json`:
-  ```json
-  "rtc": { "iceServers": [
+### Refreshing and rejoining
+
+| What happens | Result |
+|---|---|
+| A guest refreshes or closes the tab | Everyone removes their avatar immediately. After the refresh the join box opens with the same room code ready, so it is one click to come back |
+| The **host** refreshes | The host gets the **same room code** back (the app retries for a few seconds while the old connection closes), and guests **reconnect automatically**. Press *Resume my room* |
+| A connection dies silently (battery died, network dropped) | The avatar is removed after about 12 seconds |
+| A background tab | The avatar keeps its last position and voice keeps working. Moving resumes when the tab is visible |
+| The host closes the tab and does not come back | People already in the room stay connected to each other, but **new** people cannot join with that code. Create a new room |
+
+The room information is kept in the browser tab (`sessionStorage`), so it survives a refresh but is forgotten when the tab is closed or when you press *Leave room*.
+
+### Different Wi-Fi networks (TURN)
+
+Two people on the **same** Wi-Fi connect directly. On **different** networks the browsers must find a path through each router. The app tries, in this order: a direct path, a public STUN lookup, then a **TURN relay**. Most home connections work with STUN alone. These do not, and **need a TURN relay**: mobile data (carrier-grade NAT), office or school Wi-Fi, and some routers.
+
+Next to every friend's name you will see **direct** or **relay**, so you can tell which path was used. If a connection fails, the app says so and points here.
+
+**By default** the app uses Google and Cloudflare STUN plus the public *Open Relay* demo TURN from metered.ca. That demo relay is shared, rate-limited and may change or stop, so it is only a safety net. **For a real launch use your own relay**, for example:
+
+- a free [Metered](https://www.metered.ca/tools/openrelay/) or [Cloudflare Calls TURN](https://developers.cloudflare.com/calls/turn/) account, or your own `coturn` server (a small VPS is enough);
+- then set it in `walkthrough.json` (this replaces the demo relay):
+
+```json
+"rtc": {
+  "iceServers": [
     { "urls": "stun:stun.l.google.com:19302" },
-    { "urls": "turn:YOUR_TURN_HOST:3478", "username": "user", "credential": "pass" } ] }
-  ```
-  Free TURN plans exist (for example Open Relay by Metered). Anyone with the credentials can use the relay, so use a plan with usage limits.
-- The free PeerJS cloud has no uptime guarantee. For a production site run your own signalling server (`npx peerjs --port 9000`, a few lines of Node) and point to it:
+    { "urls": ["turn:YOUR_TURN_HOST:3478", "turns:YOUR_TURN_HOST:443?transport=tcp"],
+      "username": "YOUR_USER", "credential": "YOUR_PASSWORD" }
+  ]
+}
+```
+
+Audio is encrypted end to end (WebRTC); a relay only forwards encrypted packets. Use a plan with usage limits, because anyone who can read your page can read the TURN credentials.
+
+**Other limits**
+- The free PeerJS cloud has no uptime guarantee. For a production site run your own signalling server (`npx peerjs --port 9000`) and point to it:
   ```json
   "rtc": { "peer": { "host": "voice.example.com", "port": 443, "secure": true, "path": "/" } }
   ```
 - Room codes are not passwords: anyone who knows a code can join. Do not put private information in the scene.
-- A hidden browser tab pauses its avatar until it is visible again; voice keeps working.
 
 ## 🗣 Voice narration
 
@@ -297,6 +327,8 @@ Nothing useful was deleted. Where behaviour changed, the old code is kept and co
 | `class Avatar` | The original human avatar is untouched; `buildRobot()` adds the second character. `style` picks one |
 | Preview `initPreview` / `renderPreview` | The first drag handlers (limited tilt) and the instant-rotation line are kept in comments as *previous version*. The new free-orbit block replaces them |
 | `buildInteractives` | Automatic slide / hinge logic stays as the **fallback**; modeller clips take over only where they exist |
+| `buildInteractives` doors | The old hinged door code is kept (`"hingedDoors": true`). The old world-axis window slide is kept after the new local-space block (unused) |
+| Multiplayer | `shutdown()` (refresh) and `leave()` (button) are separate on purpose; `poseMsg()` is shared by the animation loop and the hidden-tab heartbeat |
 | Walkthrough card | The original card is restored unchanged; the new start page sits in front of it (`#start-page`) |
 
 ## 🛠 Troubleshooting
